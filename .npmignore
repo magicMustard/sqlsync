@@ -1,0 +1,18 @@
+# Development files
+src/
+tests/
+example/
+.github/
+.git/
+
+# Configuration files
+tsconfig.json
+jest.config.js
+.prettierrc.json
+
+# Build artifacts
+*.tgz
+.DS_Store
+
+# Keep compiled files
+!dist/

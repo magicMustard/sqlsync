@@ -1,0 +1,38 @@
+# example-complete/sqlsync.yaml
+config:
+  migrations:
+    cli:
+      create: supabase migrations new
+      up: supabase migrations up
+    outputDir: migrations # Relative to this config file's location
+  maxRollbacks: 3 # Limit how many migrations can be marked for protection
+
+sources:
+  schema:
+    order:
+      - schemas.sql
+      - functions
+      - tables
+      - seeds
+    functions:
+      order:
+        - update_updated_at_column.sql
+    tables:
+      order:
+        - users
+        - products
+        - categories
+        - orders
+      orderedSubdirectoryFileOrder:
+        - types.sql
+        - table.sql
+        - rls.sql
+        - checks.sql
+        - grants.sql
+        - policies.sql
+        - functions.sql
+        - triggers.sql
+        - indexes.sql
+    seed:
+      order:
+        - split-statements-example.sql

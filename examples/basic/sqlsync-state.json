@@ -1,0 +1,283 @@
+[
+  {
+    "sectionName": "schema",
+    "items": [
+      {
+        "directoryPath": "schema",
+        "files": [
+          {
+            "filePath": "/home/tim/Development/sqlsync/example/schema/schemas.sql",
+            "fileName": "schema/schemas.sql",
+            "declarativeTable": false,
+            "splitStatements": false,
+            "rawFileChecksum": "d652f4ba923735300e0d16b2e1ab3174e4095267b45e7cc85b94e33252c60740",
+            "rawFileContent": "CREATE SCHEMA IF NOT EXISTS public;",
+            "statements": [
+              {
+                "type": "create",
+                "content": "CREATE SCHEMA IF NOT EXISTS public;",
+                "checksum": "d652f4ba923735300e0d16b2e1ab3174e4095267b45e7cc85b94e33252c60740"
+              }
+            ],
+            "tableDefinition": null
+          }
+        ]
+      },
+      {
+        "directoryPath": "schema/functions",
+        "files": [
+          {
+            "filePath": "/home/tim/Development/sqlsync/example/schema/functions/update_updated_at_column.sql",
+            "fileName": "schema/functions/update_updated_at_column.sql",
+            "declarativeTable": false,
+            "splitStatements": false,
+            "rawFileChecksum": "84860ad90f1ce6ce3f7a087d7dc194ef2634cd40c95ddeca336f898f5a1d256f",
+            "rawFileContent": "-- functions/update_updated_at_column.sql\n\n-- Create a function to automatically update the updated_at timestamp\nCREATE OR REPLACE FUNCTION update_updated_at_column()\nRETURNS TRIGGER AS $$\nBEGIN\n\tNEW.updated_at = NOW();\n\tRETURN NEW;\nEND;\n$$ LANGUAGE plpgsql;\n",
+            "statements": [
+              {
+                "type": "create",
+                "content": "-- functions/update_updated_at_column.sql\n\n-- Create a function to automatically update the updated_at timestamp\nCREATE OR REPLACE FUNCTION update_updated_at_column()\nRETURNS TRIGGER AS $$\nBEGIN\n\tNEW.updated_at = NOW();\n\tRETURN NEW;\nEND;\n$$ LANGUAGE plpgsql;",
+                "checksum": "88a29d4878bff902a130f28e4c08dc719e0c1095e608758833de4f2f25c2c26f"
+              }
+            ],
+            "tableDefinition": null
+          }
+        ]
+      },
+      {
+        "directoryPath": "schema/tables/users",
+        "files": [
+          {
+            "filePath": "/home/tim/Development/sqlsync/example/schema/tables/users/types.sql",
+            "fileName": "schema/tables/users/types.sql",
+            "declarativeTable": false,
+            "splitStatements": false,
+            "rawFileChecksum": "88ecc7d9d1db88d9b1bb80fbab67baca6926d456446e7ecb6929423fe5482e82",
+            "rawFileContent": "-- tables/users/types.sql\n\n-- Define custom types for the users table\nCREATE TYPE user_role AS ENUM ('admin', 'user', 'guest');\nCREATE TYPE user_status AS ENUM ('active', 'inactive', 'suspended');\n",
+            "statements": [
+              {
+                "type": "create",
+                "content": "-- tables/users/types.sql\n\n-- Define custom types for the users table\nCREATE TYPE user_role AS ENUM ('admin', 'user', 'guest');\nCREATE TYPE user_status AS ENUM ('active', 'inactive', 'suspended');",
+                "checksum": "2aaaad1c62303c942f406aa1c45cf46fecb8c434ba136e49607ffcc6ad91ed0a"
+              }
+            ],
+            "tableDefinition": null
+          },
+          {
+            "filePath": "/home/tim/Development/sqlsync/example/schema/tables/users/table.sql",
+            "fileName": "schema/tables/users/table.sql",
+            "declarativeTable": true,
+            "splitStatements": false,
+            "rawFileChecksum": "d1b30c1f82b1e9c39714943a8d0ac94198c9283c92fd0a523a7f49b80e43c50a",
+            "rawFileContent": "-- sqlsync: declarativeTable=true\n\n-- Create the users table with a declarative approach\nCREATE TABLE users (\n\tid SERIAL PRIMARY KEY,\n\tusername\tVARCHAR(50) NOT NULL UNIQUE,\n\temail\t\tVARCHAR(100) NOT NULL UNIQUE,\n\tpassword_hash\tVARCHAR(255) NOT NULL,\n\tfirst_name\tVARCHAR(50),\n\tlast_name\tVARCHAR(50),\n\t-- Modified column: changed INTEGER to SMALLINT and added NOT NULL constraint\n\trole_id\tSMALLINT NOT NULL,\n\t-- Modified column: changed from VARCHAR(20) to VARCHAR(15)\n\tstatus\t\tVARCHAR(15) DEFAULT 'active',\n\t-- Added new column for user profile picture\n\tprofile_picture_url VARCHAR(255),\n\tcreated_at\tTIMESTAMP DEFAULT NOW(),\n\tupdated_at\tTIMESTAMP DEFAULT NOW()\n);\n",
+            "statements": [
+              {
+                "type": "create",
+                "content": "CREATE TABLE `users` (id SERIAL PRIMARY KEY, username VARCHAR(50) NOT NULL UNIQUE, email VARCHAR(100) NOT NULL UNIQUE, password_hash VARCHAR(255) NOT NULL, first_name VARCHAR(50), last_name VARCHAR(50), role_id SMALLINT NOT NULL, status VARCHAR(15) DEFAULT 'active', profile_picture_url VARCHAR(255), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+                "checksum": "a9554bf2bd9285d4a10da709da2c4792fbc961d54139970c5f3a21cb0f8cae37"
+              }
+            ],
+            "tableDefinition": {
+              "tableName": "users",
+              "columns": [
+                {
+                  "name": "id",
+                  "dataType": "SERIAL",
+                  "isNullable": false,
+                  "defaultValue": null,
+                  "isPrimaryKey": true,
+                  "isUnique": false
+                },
+                {
+                  "name": "username",
+                  "dataType": "VARCHAR(50)",
+                  "isNullable": false,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": true
+                },
+                {
+                  "name": "email",
+                  "dataType": "VARCHAR(100)",
+                  "isNullable": false,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": true
+                },
+                {
+                  "name": "password_hash",
+                  "dataType": "VARCHAR(255)",
+                  "isNullable": false,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "first_name",
+                  "dataType": "VARCHAR(50)",
+                  "isNullable": true,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "last_name",
+                  "dataType": "VARCHAR(50)",
+                  "isNullable": true,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "role_id",
+                  "dataType": "SMALLINT",
+                  "isNullable": false,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "status",
+                  "dataType": "VARCHAR(15)",
+                  "isNullable": true,
+                  "defaultValue": "[object Object]",
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "profile_picture_url",
+                  "dataType": "VARCHAR(255)",
+                  "isNullable": true,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "created_at",
+                  "dataType": "TIMESTAMP",
+                  "isNullable": true,
+                  "defaultValue": "NOW()",
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "updated_at",
+                  "dataType": "TIMESTAMP",
+                  "isNullable": true,
+                  "defaultValue": "NOW()",
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "directoryPath": "schema/tables/products",
+        "files": [
+          {
+            "filePath": "/home/tim/Development/sqlsync/example/schema/tables/products/table.sql",
+            "fileName": "schema/tables/products/table.sql",
+            "declarativeTable": true,
+            "splitStatements": false,
+            "rawFileChecksum": "a87c51c72b8fa2f1a43a72808914f677dbd230a10f1d73a2018b657cf53f8068",
+            "rawFileContent": "-- sqlsync: declarativeTable=true\n\n-- Create the products table\nCREATE TABLE products (\n\tid SERIAL PRIMARY KEY,\n\tname VARCHAR(100) NOT NULL,\n\tdescription TEXT,\n\tprice DECIMAL(10, 2) NOT NULL,\n\tstock_quantity INTEGER NOT NULL DEFAULT 0,\n\tcategory_id INTEGER,\n\tis_featured BOOLEAN DEFAULT FALSE,\n\tdiscount_percentage DECIMAL(5, 2) DEFAULT 0,\n\tcreated_at TIMESTAMP DEFAULT NOW(),\n\tupdated_at TIMESTAMP DEFAULT NOW()\n);\n",
+            "statements": [
+              {
+                "type": "create",
+                "content": "CREATE TABLE `products` (id SERIAL PRIMARY KEY, name VARCHAR(100) NOT NULL, description TEXT, price DECIMAL(10, 2) NOT NULL, stock_quantity INTEGER NOT NULL DEFAULT 0, category_id INTEGER, is_featured BOOLEAN DEFAULT FALSE, discount_percentage DECIMAL(5, 2) DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+                "checksum": "8bfe571b8e0dee8636ec257707500fc97a80091fce788750547d271bde8e9341"
+              }
+            ],
+            "tableDefinition": {
+              "tableName": "products",
+              "columns": [
+                {
+                  "name": "id",
+                  "dataType": "SERIAL",
+                  "isNullable": false,
+                  "defaultValue": null,
+                  "isPrimaryKey": true,
+                  "isUnique": false
+                },
+                {
+                  "name": "name",
+                  "dataType": "VARCHAR(100)",
+                  "isNullable": false,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "description",
+                  "dataType": "TEXT",
+                  "isNullable": true,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "price",
+                  "dataType": "DECIMAL(10)",
+                  "isNullable": false,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "stock_quantity",
+                  "dataType": "INTEGER",
+                  "isNullable": false,
+                  "defaultValue": "[object Object]",
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "category_id",
+                  "dataType": "INTEGER",
+                  "isNullable": true,
+                  "defaultValue": null,
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "is_featured",
+                  "dataType": "BOOLEAN",
+                  "isNullable": true,
+                  "defaultValue": "[object Object]",
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "discount_percentage",
+                  "dataType": "DECIMAL(5)",
+                  "isNullable": true,
+                  "defaultValue": "[object Object]",
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "created_at",
+                  "dataType": "TIMESTAMP",
+                  "isNullable": true,
+                  "defaultValue": "NOW()",
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                },
+                {
+                  "name": "updated_at",
+                  "dataType": "TIMESTAMP",
+                  "isNullable": true,
+                  "defaultValue": "NOW()",
+                  "isPrimaryKey": false,
+                  "isUnique": false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
