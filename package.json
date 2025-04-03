@@ -21,6 +21,14 @@
 	"keywords": ["sqlsync", "postgresql", "database", "migrations", "declarative", "schema", "sync"],
 	"author": "Tim | magicMustard",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/magicMustard/sqlsync.git"
+	},
+	"bugs": {
+		"url": "https://github.com/magicMustard/sqlsync/issues"
+	},
+	"homepage": "https://github.com/magicMustard/sqlsync#readme",
 	"type": "commonjs",
 	"dependencies": {
 		"@types/node-sql-parser": "^1.0.0",
