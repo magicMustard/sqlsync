@@ -1,0 +1,1253 @@
+{
+  "version": 1,
+  "lastProductionMigration": null,
+  "migrationHistory": [
+    "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/20250403090614_initial_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090614_add_created_at.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090615_add_products.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090853_initial_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090854_add_created_at.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090854_add_products.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090922_initial_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090922_add_created_at.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090922_add_products.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090935_initial_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090936_add_created_at.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090936_add_products.sql"
+  ],
+  "migrations": {
+    "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/20250403090614_initial_schema.sql": {
+      "statements": [
+        {
+          "checksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              }
+            ]
+          },
+          "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:06:14.595Z",
+      "fileChecksum": "86cab96f4d8ac0917c7b30bf1ad02a896ccc7619dcc39fa3aff7705777bf74d3"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090614_add_created_at.sql": {
+      "statements": [
+        {
+          "checksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:06:14.710Z",
+      "fileChecksum": "bc0e0fd151d922efe670f0320b44cf504b7858970043be4476bae59231c90ef4"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090615_add_products.sql": {
+      "statements": [
+        {
+          "checksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:06:15.017Z",
+      "fileChecksum": "0abe8320cb706e41cb92a4384775cf2b2f4da6b293ec87d7f55097e59285b15c"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090853_initial_schema.sql": {
+      "statements": [
+        {
+          "checksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "7fd8f7cc860f21ea81179e4aa0b7034f939b8551ad9337c42ab649c8a2b1221c",
+          "filePath": "schema/tables/products/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              }
+            ]
+          },
+          "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:08:53.818Z",
+      "fileChecksum": "82a191a5c90e7d371691e35994bdc007140ad7149035d4a1aa34e3105ebebfc1"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090854_add_created_at.sql": {
+      "statements": [
+        {
+          "checksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "7fd8f7cc860f21ea81179e4aa0b7034f939b8551ad9337c42ab649c8a2b1221c",
+          "filePath": "schema/tables/products/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:08:54.121Z",
+      "fileChecksum": "dd40b737f6329322a81b2ee877e8c46052a6bbdda34582500a025212b12cb59d"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090854_add_products.sql": {
+      "statements": [
+        {
+          "checksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "7fd8f7cc860f21ea81179e4aa0b7034f939b8551ad9337c42ab649c8a2b1221c",
+          "filePath": "schema/tables/products/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:08:54.589Z",
+      "fileChecksum": "87581b22308a6c58f7a8ad7e3a8a5232e2207b6920a4ec70f0a255d4fa406371"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090922_initial_schema.sql": {
+      "statements": [
+        {
+          "checksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "7fd8f7cc860f21ea81179e4aa0b7034f939b8551ad9337c42ab649c8a2b1221c",
+          "filePath": "schema/tables/products/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              }
+            ]
+          },
+          "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:22.122Z",
+      "fileChecksum": "1358cb1e603a0786e50d73305f7d055e608ca570e16fe59d42b59b543690f56c"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090922_add_created_at.sql": {
+      "statements": [
+        {
+          "checksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "7fd8f7cc860f21ea81179e4aa0b7034f939b8551ad9337c42ab649c8a2b1221c",
+          "filePath": "schema/tables/products/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:22.408Z",
+      "fileChecksum": "c889a000182037d6d9d5f413dd5171944dcd3ae73e3050727e2ede6f0c2e549d"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090922_add_products.sql": {
+      "statements": [
+        {
+          "checksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "7fd8f7cc860f21ea81179e4aa0b7034f939b8551ad9337c42ab649c8a2b1221c",
+          "filePath": "schema/tables/products/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:22.861Z",
+      "fileChecksum": "b1ad38a8fcc56cdfb7d664b467615f309c765177d7af6bca2fe41235d3dc9b2e"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090935_initial_schema.sql": {
+      "statements": [
+        {
+          "checksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "7fd8f7cc860f21ea81179e4aa0b7034f939b8551ad9337c42ab649c8a2b1221c",
+          "filePath": "schema/tables/products/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              }
+            ]
+          },
+          "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:35.948Z",
+      "fileChecksum": "9844128609a2a5f33b9aa769ffc8d4c596fe76f59103161236189174b4e355ad"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090936_add_created_at.sql": {
+      "statements": [
+        {
+          "checksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "7fd8f7cc860f21ea81179e4aa0b7034f939b8551ad9337c42ab649c8a2b1221c",
+          "filePath": "schema/tables/products/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:36.249Z",
+      "fileChecksum": "5fde06ab954dae71ff3fd14043173dd94c6be4caf2d34afac0e6a48ffcb22eab"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/20250403090936_add_products.sql": {
+      "statements": [
+        {
+          "checksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "7fd8f7cc860f21ea81179e4aa0b7034f939b8551ad9337c42ab649c8a2b1221c",
+          "filePath": "schema/tables/products/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql"
+        },
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+          "tableName": "public.products",
+          "parsedStructure": {
+            "tableName": "public.products",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "price",
+                "dataType": "DECIMAL(10,2)",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:36.710Z",
+      "fileChecksum": "32b42ef89c3f7eeaf9c77db72656ac0ad0ac38b86a137df31c600f38478e3d26"
+    }
+  },
+  "currentDeclarativeTables": {
+    "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql": {
+      "tableName": "public.users",
+      "parsedStructure": {
+        "tableName": "public.users",
+        "columns": [
+          {
+            "name": "id",
+            "dataType": "SERIAL",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": true,
+            "isUnique": true
+          },
+          {
+            "name": "username",
+            "dataType": "TEXT",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "email",
+            "dataType": "TEXT",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": true
+          }
+        ]
+      },
+      "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+      "sourceFilePath": "schema/tables/users/table.sql"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": {
+      "tableName": "public.users",
+      "parsedStructure": {
+        "tableName": "public.users",
+        "columns": [
+          {
+            "name": "id",
+            "dataType": "SERIAL",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": true,
+            "isUnique": true
+          },
+          {
+            "name": "username",
+            "dataType": "TEXT",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "email",
+            "dataType": "TEXT",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": true
+          },
+          {
+            "name": "created_at",
+            "dataType": "TIMESTAMP",
+            "isNullable": true,
+            "defaultValue": "NOW()",
+            "isPrimaryKey": false,
+            "isUnique": false
+          }
+        ]
+      },
+      "rawStatementChecksum": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+      "sourceFilePath": "schema/tables/users/table.sql"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": {
+      "tableName": "public.products",
+      "parsedStructure": {
+        "tableName": "public.products",
+        "columns": [
+          {
+            "name": "id",
+            "dataType": "SERIAL",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": true,
+            "isUnique": true
+          },
+          {
+            "name": "name",
+            "dataType": "TEXT",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "price",
+            "dataType": "DECIMAL(10,2)",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": false
+          }
+        ]
+      },
+      "rawStatementChecksum": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8",
+      "sourceFilePath": "schema/tables/products/table.sql"
+    }
+  },
+  "currentFileChecksums": {
+    "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/users/table.sql": "edb67dc9f574634d9fe82d2ab3740e53511a1a0d743ada39fe3cdf0b628a5abd",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev1/schema/tables/products/table.sql": "eaf41d195d5063641d6f7fff63bc24287ba9478752eda96ea593c8f9d14328b8"
+  }
+}

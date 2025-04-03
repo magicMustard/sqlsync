@@ -1,6 +1,5 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { Parser } from 'node-sql-parser';
 import { getHash } from '@/utils/crypto';
 import { logger } from '@/utils/logger';
 import {
@@ -13,54 +12,20 @@ import {
 import { PostgresTableParser } from './pg-table-parser';
 
 // Helper function to calculate checksums for individual statements
-// Updated to filter comments before processing
 const calculateStatementsChecksums = (
-	parser: Parser,
 	content: string
 ): ProcessedStatement[] => {
 	try {
-		// Use the database option only (whiteList isn't actually supported by the type)
-		const ast = parser.astify(content, { database: 'postgresql' });
-		const statements: ProcessedStatement[] = [];
-
-		// Filter out comment nodes before iterating
-		const executableNodes = Array.isArray(ast)
-			? ast.filter((node) => node && node.type)
-			: ast && ast.type
-				? [ast]
-				: [];
-
-		// If we successfully parsed some statements, use them
-		if (executableNodes.length > 0) {
-			// Parse individual statements with sqlify if possible
-			for (const node of executableNodes) {
-				try {
-					const statementSql = parser.sqlify(node, { database: 'postgresql' });
-					statements.push({
-						type: node.type,
-						content: statementSql,
-						normalizedStatement: statementSql, // Add normalized statement
-						checksum: getHash(statementSql),
-					});
-				} catch (err: any) {
-					logger.debug(`Failed to sqlify node: ${err}`);
-					// Instead of continuing with other nodes, we'll throw an error for invalid syntax
-					throw new Error(`Invalid SQL syntax: ${err.message || JSON.stringify(err)}`);
-				}
-			}
-			
-			// If we managed to extract some statements, return them
-			if (statements.length > 0) {
-				return statements;
-			}
-		}
+		// We're now parsing statements using our own logic
+		// We'll use the boundary and semicolon splitters instead of parser.astify
 		
-		// If parsing with node-sql-parser didn't work well, fall back to our custom approach
+		// First, split by statement boundaries
 		return splitByStatementBoundaries(content);
-	} catch (err: any) {
-		logger.debug(`Error in calculateStatementsChecksums: ${err}`);
-		// Throw the error to be caught by the caller
-		throw err;
+	} catch (error) {
+		logger.debug('Error parsing statements with AST parser:', error);
+		
+		// If parsing failed, fall back to our custom approach
+		return splitByStatementBoundaries(content);
 	}
 };
 
@@ -279,156 +244,6 @@ const parseDirectives = (content: string): SqlSyncDirectiveFlags => {
 	return directives;
 };
 
-// Helper function to safely extract column details from the AST node
-// Optimized based on actual node-sql-parser AST structure
-const extractColumnDefinition = (
-	definitionNode: any
-): ColumnDefinition | null => {
-	// Log the definition structure for debugging
-	logger.debug(
-		`Column definition node: ${JSON.stringify(definitionNode, null, 2)}`
-	);
-
-	// Check if it's a column definition node
-	if (definitionNode && definitionNode.column && definitionNode.definition) {
-		try {
-			// Extract column name - handles the nested structure in AST
-			let name = '';
-			if (definitionNode.column.column?.expr?.value) {
-				name = definitionNode.column.column.expr.value;
-			} else if (definitionNode.column.column?.value) {
-				name = definitionNode.column.column.value;
-			} else if (typeof definitionNode.column.column === 'string') {
-				name = definitionNode.column.column;
-			} else {
-				logger.error('Unable to extract column name from AST');
-				return null;
-			}
-
-			// Extract data type
-			let dataType = definitionNode.definition.dataType || '';
-
-			// Add length if specified (e.g., VARCHAR(50))
-			if (definitionNode.definition.length) {
-				if (typeof definitionNode.definition.length === 'number') {
-					dataType += `(${definitionNode.definition.length})`;
-				} else if (Array.isArray(definitionNode.definition.length)) {
-					const lengths = definitionNode.definition.length
-						.map((l: any) => l.value || l)
-						.join(',');
-					dataType += `(${lengths})`;
-				}
-			}
-
-			// Determine column constraints
-			const isPrimaryKey = !!definitionNode.primary_key;
-			const isUnique = !!definitionNode.unique;
-
-			// Determine nullability
-			let isNullable = true; // Default is nullable
-
-			// Handle NOT NULL constraint
-			if (definitionNode.nullable) {
-				// A nullable object with type "not null" means it's NOT NULL
-				if (definitionNode.nullable.type === 'not null') {
-					isNullable = false;
-				}
-			}
-
-			// Primary keys are implicitly NOT NULL
-			if (isPrimaryKey) {
-				isNullable = false;
-			}
-
-			// SERIAL type in PostgreSQL implies NOT NULL
-			if (dataType.toUpperCase() === 'SERIAL') {
-				isNullable = false;
-			}
-
-			// Extract default value
-			let defaultValue: string | null = null;
-			if (definitionNode.default_val) {
-				if (
-					typeof definitionNode.default_val.value === 'object' &&
-					definitionNode.default_val.value.type === 'function'
-				) {
-					// Handle function defaults like NOW()
-					const funcName = definitionNode.default_val.value.name.name[0].value;
-					defaultValue = `${funcName}()`;
-				} else if (definitionNode.default_val.value) {
-					defaultValue = definitionNode.default_val.value.toString();
-				}
-			}
-
-			return {
-				name,
-				dataType,
-				isNullable,
-				defaultValue,
-				isPrimaryKey,
-				isUnique,
-			};
-		} catch (err) {
-			logger.error(`Error extracting column definition: ${err}`);
-			return null;
-		}
-	}
-
-	// This isn't a column definition we recognize
-	return null;
-};
-
-// Helper function to parse CREATE TABLE statement and extract structure
-const parseCreateTableStatement = (
-	createStatementAst: any,
-	parser: Parser
-): TableDefinition | null => {
-	if (
-		!createStatementAst ||
-		createStatementAst.type !== 'create' ||
-		createStatementAst.keyword !== 'table' ||
-		!createStatementAst.table ||
-		createStatementAst.table.length === 0
-	) {
-		return null; // Not a valid CREATE TABLE AST
-	}
-
-	// Extract the table name string directly
-	const tableName = createStatementAst.table[0].table; // (ts:6365803e)
-
-	logger.debug(`Parsing CREATE TABLE for '${tableName}'`);
-	logger.debug(`AST structure: ${JSON.stringify(createStatementAst, null, 2)}`);
-
-	const columns: ColumnDefinition[] = [];
-	if (createStatementAst.create_definitions) {
-		logger.debug(
-			`Found ${createStatementAst.create_definitions.length} definitions`
-		);
-
-		for (const definitionNode of createStatementAst.create_definitions) {
-			logger.debug(
-				`Processing definition: ${JSON.stringify(definitionNode, null, 2)}`
-			);
-			const columnDef = extractColumnDefinition(definitionNode);
-			if (columnDef) {
-				columns.push(columnDef);
-			}
-			// Here you could also parse constraints (PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK)
-		}
-	}
-
-	if (columns.length === 0) {
-		logger.warn(`No columns parsed for declarative table '${tableName}'.`);
-		// Decide if this is an error or just an empty table definition
-	}
-
-	return {
-		tableName,
-		columns,
-		// other properties like constraints, indexes could be added here
-	};
-};
-
 /**
  * Detects if a SQL string contains a CREATE TABLE statement
  * 
@@ -436,14 +251,15 @@ const parseCreateTableStatement = (
  * @returns true if it contains a CREATE TABLE statement
  */
 function isCreateTableStatement(sql: string): boolean {
-	// Normalize the SQL to handle comments and whitespace
-	const normalizedSql = sql
+	// Simple regex check for CREATE TABLE statement
+	const normalized = sql
 		.replace(/--.*$/gm, '') // Remove single-line comments
-		.replace(/\/\*[\s\S]*?\*\//gm, '') // Remove multi-line comments
-		.trim();
-		
-	// Simple regex check for CREATE TABLE
-	return /CREATE\s+TABLE/i.test(normalizedSql);
+		.replace(/\/\*[\s\S]*?\*\//gm, ''); // Remove multi-line comments
+	
+	const trimmedNormalized = normalized.trim();
+	const regex = /\s*CREATE\s+TABLE/i;
+	const result = regex.test(trimmedNormalized);
+	return result;
 }
 
 /**
@@ -491,167 +307,160 @@ export async function processSqlFile(
 		}
 		
 		// Setup parser with PostgreSQL as target DB
-		const parser = new Parser();
+		const parser = PostgresTableParser;
 		
-		// Try to parse the SQL to catch basic syntax errors early
-		try {
-			parser.astify(fileContent, { database: 'postgresql' });
-		} catch (err: any) {
-			throw new Error(`Invalid SQL syntax: ${err.message || String(err)}`);
-		}
-		
-		// Check if this is a CREATE TABLE statement
+		// Check for CREATE TABLE multi-statement violation
 		const hasCreateTable = isCreateTableStatement(fileContent);
 		
-		// Extract CREATE TABLE statements (regardless of directive flags)
-		// This is used for declarative table support and to detect table statements
-		let hasExtractedTable = false;
 		if (hasCreateTable) {
+			// Original check:
+			// Split statements ONLY to check for the multi-statement rule violation
+			// We use the internal splitter directly here, not relying on directives yet
 			try {
-				// Use our custom PostgreSQL table parser
-				tableDefinition = PostgresTableParser.parseCreateTable(fileContent);
-				hasExtractedTable = tableDefinition !== null;
+				const fileStatements = splitByStatementBoundaries(fileContent); 
 				
-				if (!hasExtractedTable) {
-					logger.debug(`Failed to extract table definition with custom parser: ${filePath}`);
+				if (fileStatements.length > 1) {
+					throw new Error(
+						`Files containing a CREATE TABLE statement must not contain other executable SQL statements. Found ${fileStatements.length} statements in file: '${filePath}'`
+					);
 				}
-			} catch (err) {
-				// If our custom parser fails, log the error
-				logger.debug(`Custom CREATE TABLE parser failed for ${filePath}: ${err}`);
+			} catch (splitErr: any) {
+				// If splitting itself fails here, re-throw as a general syntax error
+				throw new Error(`Invalid SQL syntax: ${splitErr.message || String(splitErr)}`);
 			}
 			
-			// Break the file into statements to check if there's more than one statement
-			const fileStatements = splitByStatementBoundaries(fileContent);
-			if (fileStatements.length > 1) {
-				// If there are multiple statements in a file with CREATE TABLE, this is an error
-				throw new Error(
-					`Files containing a CREATE TABLE statement must not contain other executable SQL statements. Found ${fileStatements.length} statements in file: '${filePath}'`
-				);
-			}
-		}
-		
-		// Process the file based on directives and content
-		// --- Logic for declarative tables ---
+		} 
+
+		// Determine if statements should be split based on directives
+		// --- Process based on directives ---
 		if (directives.declarativeTable) {
-			// Require a CREATE TABLE statement for declarative mode
+			// Require a CREATE TABLE statement for declarative mode (already checked by hasCreateTable)
 			if (!hasCreateTable) {
 				throw new Error(
 					`File marked as 'declarativeTable=true' but no CREATE TABLE found. File: '${filePath}'`
 				);
 			}
 			
-			// Require successful table structure extraction
-			if (!tableDefinition) {
-				throw new Error(`Failed to extract table definition from ${filePath}`);
+			// Try to parse the table definition
+			try {
+				tableDefinition = PostgresTableParser.parseCreateTable(fileContent);
+				if (!tableDefinition) {
+					logger.debug(`Failed to extract table definition with custom parser: ${filePath}`);
+					throw new Error(`Failed to extract table definition from ${filePath}`);
+				}
+				logger.debug(`Extracted table definition for ${tableDefinition.tableName}`);
+			} catch (err: any) {
+				throw new Error(`Failed to parse CREATE TABLE statement in ${filePath}: ${err.message || String(err)}`);
 			}
 			
-			logger.debug(`Extracted table definition for ${tableDefinition.tableName}`);
-			
-			// Calculate checksum based on the CREATE TABLE statement
+			// Calculate checksum based on the CREATE TABLE statement (normalized)
 			const effectiveContent = fileContent
-				.replace(/--.*$/gm, '') // Remove comments for checksum
+				.replace(/--.*$/gm, '') // Remove comments
 				.replace(/\/\*[\s\S]*?\*\//gm, '')
 				.trim();
-				
 			const checksum = getHash(effectiveContent);
 			
 			// Create a single statement for the CREATE TABLE
 			statements = [
 				{
-					type: 'create',
+					type: 'create', // Specifically CREATE TABLE
 					content: fileContent.trim(), // Keep original content with comments
-					normalizedStatement: effectiveContent, // Add normalized statement
+					normalizedStatement: effectiveContent,
 					checksum,
 				},
 			];
-
-			logger.debug(`Found ${statements.length} statements for declarative table`);
 		}
 		// --- Logic for split statements ---
 		else if (directives.splitStatements) {
+			// Should not have CREATE TABLE with splitStatements (already checked)
 			if (hasCreateTable) {
 				throw new Error(
-					`Files containing a CREATE TABLE statement must not contain other executable SQL statements`
+					`Cannot use 'splitStatements=true' with a CREATE TABLE statement in file: '${filePath}'`
 				);
 			}
-			// First try the parser-based approach for splitting statements
+			// Try to split statements using the boundary logic
 			try {
-				statements = calculateStatementsChecksums(parser, fileContent);
-				
-				// If any statement has an invalid SQL syntax, it should throw an error,
-				// but in case it doesn't, we'll verify each statement
-				for (const stmt of statements) {
-					if (!stmt.normalizedStatement) {
-						throw new Error(`Invalid SQL statement found: ${stmt.content ? stmt.content.substring(0, 50) : 'unknown'}...`);
-					}
+				statements = splitByStatementBoundaries(fileContent);
+				// Basic validation: if content exists, we expect statements
+				if (statements.length === 0 && fileContent.trim().length > 0) {
+					throw new Error('No valid SQL statements found despite content.');
 				}
 			} catch (err: any) {
-				// When there's an error parsing SQL with splitStatements=true,
-				// we set the error and clear statements
-				error = `SQL syntax error: ${err.message || String(err)}`;
-				statements = [];
-				throw err; // Re-throw to skip the rest of the processing
+				// Errors during splitting are treated as syntax errors
+				throw new Error(`SQL syntax error during splitting: ${err.message || String(err)}`);
 			}
-		} else {
-			// Default Logic (Treat as single statement, or handle CREATE TABLE non-declaratively)
+		} 
+		// --- Default Logic (Treat as single statement) ---
+		else {
+			// Handle CREATE TABLE files that are *not* declarative
 			if (hasCreateTable) {
-				// If there's a CREATE TABLE but no declarativeTable flag, just treat it as a normal statement
-				logger.debug(`Found CREATE TABLE but no declarativeTable flag, treating as regular SQL`);
+				// The multi-statement check already ran. Treat as single CREATE TABLE statement.
+				logger.debug(`Found non-declarative CREATE TABLE, treating as single statement: ${filePath}`);
 			}
 
-			// By default, we treat the entire file as a single statement
-			// This is good for view definitions, functions, etc.
-
-			// Remove comments for checksum calculation
-			let effectiveContent = fileContent;
-			// Strip SQL comments for checksum calculation
-			effectiveContent = effectiveContent
-				.replace(/--.*$/gm, '') // Remove single-line comments
-				.replace(/\/\*[\s\S]*?\*\//gm, '') // Remove multi-line comments
+			// Treat the entire file as a single statement
+			const effectiveContent = fileContent
+				.replace(/--.*$/gm, '') // Remove comments for checksum
+				.replace(/\/\*[\s\S]*?\*\//gm, '')
 				.trim();
-
-			const checksum = getHash(effectiveContent);
-
-			// Create a single statement for the entire file
-			let statementType = 'unknown';
-			
-			// Try to determine the statement type based on content
-			const upperContent = effectiveContent.toUpperCase();
-			if (upperContent.startsWith('CREATE TABLE')) statementType = 'create';
-			else if (upperContent.startsWith('CREATE FUNCTION')) statementType = 'function';
-			else if (upperContent.startsWith('ALTER TABLE')) statementType = 'alter';
-			else if (upperContent.startsWith('CREATE POLICY')) statementType = 'policy';
-			else if (upperContent.startsWith('CREATE TRIGGER')) statementType = 'trigger';
-			else if (upperContent.startsWith('ENABLE ROW LEVEL SECURITY')) statementType = 'rls';
-			
-			statements = [
-				{
-					type: statementType,
-					content: fileContent.trim(), // Keep original content with comments
-					normalizedStatement: effectiveContent, // Add normalized statement
-					checksum,
-				},
-			];
+				
+			// Only add if there is actual content after trimming comments
+			if (effectiveContent) {
+				const checksum = getHash(effectiveContent);
+				
+				// Determine statement type heuristically
+				let statementType = 'unknown';
+				const upperContent = effectiveContent.toUpperCase();
+				if (upperContent.startsWith('CREATE TABLE')) statementType = 'create'; // Non-declarative create
+				else if (upperContent.startsWith('CREATE FUNCTION')) statementType = 'function';
+				else if (upperContent.startsWith('ALTER TABLE')) statementType = 'alter';
+				else if (upperContent.startsWith('CREATE POLICY')) statementType = 'policy';
+				else if (upperContent.startsWith('CREATE TRIGGER')) statementType = 'trigger';
+				else if (upperContent.startsWith('ENABLE ROW LEVEL SECURITY')) statementType = 'rls';
+				
+				statements = [
+					{
+						type: statementType,
+						content: fileContent.trim(), // Keep original content with comments
+						normalizedStatement: effectiveContent,
+						checksum,
+					},
+				];
+			} else {
+				// File is empty or only contains comments
+				statements = [];
+			}
 		}
+		
 	} catch (err: any) {
-		error = err instanceof Error ? err.toString() : 'Unknown error';
-		logger.error(`Error processing SQL file ${filePath}: ${error}`);
-		statements = [];
-		tableDefinition = null;
-		// Keep fileChecksum if reading worked, otherwise it's null
-		if (!fileContent) fileChecksum = '';
+		// Catch errors during processing and return them immediately
+		error = err.message || String(err);
+		// Return an object conforming to ProcessedSqlFile on error
+		return {
+			filePath: relPath, // Use relative path (or filename)
+			fileName,
+			rawFileContent: fileContent, // Keep raw content even on error
+			rawFileChecksum: fileChecksum, // Keep checksum even on error
+			error, // The captured error message
+			statements: [], // Empty statements on error
+			tableDefinition: null, // Null definition on error
+			// Include directive flags even if an error occurred
+			declarativeTable: directives.declarativeTable,
+			splitStatements: directives.splitStatements,
+		};
 	}
 
-	// Construct the final object
+	// If no error occurred, return the successfully processed data
+	// Conforming to ProcessedSqlFile interface
 	return {
-		filePath,
+		filePath: relPath, // Use relative path (or filename)
 		fileName,
+		rawFileContent: fileContent,
+		rawFileChecksum: fileChecksum,
+		statements,
+		tableDefinition, // Populated if applicable
 		declarativeTable: directives.declarativeTable,
 		splitStatements: directives.splitStatements,
-		rawFileChecksum: fileChecksum,
-		rawFileContent: fileContent,
-		statements,
-		tableDefinition, // Populated only for declarative=true
-		error: error ? error.toString() : undefined,
+		error: undefined, // Explicitly undefined on success
 	};
 }

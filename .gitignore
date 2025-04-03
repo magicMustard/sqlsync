@@ -16,5 +16,3 @@ pnpm-debug.log*
 
 # Package files
 *.tgz
-
-examples/real-life

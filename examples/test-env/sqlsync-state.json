@@ -1,0 +1,461 @@
+{
+  "version": 1,
+  "lastProductionMigration": null,
+  "migrationHistory": [
+    "/home/tim/Development/sqlsync/examples/test-env/20250403040508_initial_schema.sql",
+    "/home/tim/Development/sqlsync/examples/test-env/20250403093803_test_generate.sql",
+    "/home/tim/Development/sqlsync/examples/test-env/20250403094045_test_declarative.sql"
+  ],
+  "migrations": {
+    "/home/tim/Development/sqlsync/examples/test-env/20250403040508_initial_schema.sql": {
+      "statements": [
+        {
+          "checksum": "5a9f9b700ad4ec30007ef7fd22f5a0aa712c784ebaab7f7fe4d213ea931678a7",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/schemas.sql"
+        },
+        {
+          "checksum": "bba1ea53de622dcb59b9fbf91037b596387a330ea2731bdbb8602ba9a102b84b",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/extensions.sql"
+        },
+        {
+          "checksum": "8eddee9d87b1cf8bdbf3ecf156fd2410b4d16e3d1296e132de8a72f8d3cc9c5d",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/roles/roles.sql"
+        },
+        {
+          "checksum": "8796d4e0a21e94723ae6902283676e2274ac8b8ed306475ac64f295f8297f550",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/functions/uuid_v7.sql"
+        },
+        {
+          "checksum": "7d2123f8548413b979f3219d345c712cddc263196c0321b92b7218978f00ff6d",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/functions/update_updated_at_column.sql"
+        },
+        {
+          "checksum": "c051436735f0907f6013d188c12f74b0869dc390b542f27b612f454fd84c3bf4",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/table.sql"
+        },
+        {
+          "checksum": "a925737aa2b0863f8ac9c17c260fdc838df84389bbcb686915a8cb580ad44960",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/rls.sql"
+        },
+        {
+          "checksum": "96af15a0940e1689a924cb85b5658137e71944d377960818edb232e01c919775",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/grants.sql"
+        },
+        {
+          "checksum": "4c315ff6a55b9f34f25419d973566e1c2d3b55bfea1cf05b912f7dd5e134db0f",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/table.sql"
+        },
+        {
+          "checksum": "4e8f0a412cbe0d859aa67263e44caa79df18d93fe64e5d7bb4e60404a84dfc7e",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/rls.sql"
+        },
+        {
+          "checksum": "fc9bc4534e70422b4a6f591018cf9523c0780a9bc91a030eb161012084ad2673",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/grants.sql"
+        },
+        {
+          "checksum": "c44cb7c23fc6daf84d4d2d5921df092e61256dfcf0d68de15db410a7f9ea81dd",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/triggers.sql"
+        },
+        {
+          "checksum": "3e33d06174d1e92ae7d7a668a36070d37c7a421a49abe9c9ee39dad4c28e3516",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/indexes.sql"
+        },
+        {
+          "checksum": "efba5a0178c94cc39d05de47a59d464875bcc222090e62a46d4e1ac9335efb30",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/types.sql"
+        },
+        {
+          "checksum": "fa82731fa3d5ba0327548ca9b65c69a03afbb7c292f03cdd0217358e384cad2d",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/table.sql"
+        },
+        {
+          "checksum": "d0d86f22ca5d9cc0f9a4dc22cd600f4b60ebdcf7bf7dc7d49e266ce4f4cc7953",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/rls.sql"
+        },
+        {
+          "checksum": "1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/checks.sql"
+        },
+        {
+          "checksum": "86c2c4133545000e5641178ab1d2f721041aa3c572b08985b901ee93589ec88b",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/grants.sql"
+        },
+        {
+          "checksum": "0469103f4e2ec3ab9933b0c81d6fcc9a97202860294119b234eebb176ae18b22",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/indexes.sql"
+        },
+        {
+          "checksum": "bc68413dbbe03f2ab81fadf448b15f44c528fc4fa4e215ce7670bb7e2064ce08",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/seeds/system_config.sql"
+        }
+      ],
+      "declarativeTables": {},
+      "createdAt": "2025-04-03T04:05:08.978Z",
+      "fileChecksum": "e8be92db922ecd9eead3e1344d25e5eb6f7b59e88a3197267ac1b50f73b34e54"
+    },
+    "/home/tim/Development/sqlsync/examples/test-env/20250403093803_test_generate.sql": {
+      "statements": [
+        {
+          "checksum": "5a9f9b700ad4ec30007ef7fd22f5a0aa712c784ebaab7f7fe4d213ea931678a7",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/schemas.sql"
+        },
+        {
+          "checksum": "bba1ea53de622dcb59b9fbf91037b596387a330ea2731bdbb8602ba9a102b84b",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/extensions.sql"
+        },
+        {
+          "checksum": "8eddee9d87b1cf8bdbf3ecf156fd2410b4d16e3d1296e132de8a72f8d3cc9c5d",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/roles/roles.sql"
+        },
+        {
+          "checksum": "8796d4e0a21e94723ae6902283676e2274ac8b8ed306475ac64f295f8297f550",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/functions/uuid_v7.sql"
+        },
+        {
+          "checksum": "7d2123f8548413b979f3219d345c712cddc263196c0321b92b7218978f00ff6d",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/functions/update_updated_at_column.sql"
+        },
+        {
+          "checksum": "c051436735f0907f6013d188c12f74b0869dc390b542f27b612f454fd84c3bf4",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/table.sql"
+        },
+        {
+          "checksum": "a925737aa2b0863f8ac9c17c260fdc838df84389bbcb686915a8cb580ad44960",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/rls.sql"
+        },
+        {
+          "checksum": "96af15a0940e1689a924cb85b5658137e71944d377960818edb232e01c919775",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/grants.sql"
+        },
+        {
+          "checksum": "4c315ff6a55b9f34f25419d973566e1c2d3b55bfea1cf05b912f7dd5e134db0f",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/table.sql"
+        },
+        {
+          "checksum": "4e8f0a412cbe0d859aa67263e44caa79df18d93fe64e5d7bb4e60404a84dfc7e",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/rls.sql"
+        },
+        {
+          "checksum": "fc9bc4534e70422b4a6f591018cf9523c0780a9bc91a030eb161012084ad2673",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/grants.sql"
+        },
+        {
+          "checksum": "c44cb7c23fc6daf84d4d2d5921df092e61256dfcf0d68de15db410a7f9ea81dd",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/triggers.sql"
+        },
+        {
+          "checksum": "3e33d06174d1e92ae7d7a668a36070d37c7a421a49abe9c9ee39dad4c28e3516",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/indexes.sql"
+        },
+        {
+          "checksum": "efba5a0178c94cc39d05de47a59d464875bcc222090e62a46d4e1ac9335efb30",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/types.sql"
+        },
+        {
+          "checksum": "fa82731fa3d5ba0327548ca9b65c69a03afbb7c292f03cdd0217358e384cad2d",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/table.sql"
+        },
+        {
+          "checksum": "d0d86f22ca5d9cc0f9a4dc22cd600f4b60ebdcf7bf7dc7d49e266ce4f4cc7953",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/rls.sql"
+        },
+        {
+          "checksum": "1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/checks.sql"
+        },
+        {
+          "checksum": "86c2c4133545000e5641178ab1d2f721041aa3c572b08985b901ee93589ec88b",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/grants.sql"
+        },
+        {
+          "checksum": "0469103f4e2ec3ab9933b0c81d6fcc9a97202860294119b234eebb176ae18b22",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/indexes.sql"
+        },
+        {
+          "checksum": "bc68413dbbe03f2ab81fadf448b15f44c528fc4fa4e215ce7670bb7e2064ce08",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/seeds/system_config.sql"
+        }
+      ],
+      "declarativeTables": {},
+      "createdAt": "2025-04-03T09:38:03.788Z",
+      "fileChecksum": "295967a0c310db3926ee71246fc750e89c6780d4471da2b228aa11086c7b2285"
+    },
+    "/home/tim/Development/sqlsync/examples/test-env/20250403094045_test_declarative.sql": {
+      "statements": [
+        {
+          "checksum": "5a9f9b700ad4ec30007ef7fd22f5a0aa712c784ebaab7f7fe4d213ea931678a7",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/schemas.sql"
+        },
+        {
+          "checksum": "bba1ea53de622dcb59b9fbf91037b596387a330ea2731bdbb8602ba9a102b84b",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/extensions.sql"
+        },
+        {
+          "checksum": "8eddee9d87b1cf8bdbf3ecf156fd2410b4d16e3d1296e132de8a72f8d3cc9c5d",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/roles/roles.sql"
+        },
+        {
+          "checksum": "8796d4e0a21e94723ae6902283676e2274ac8b8ed306475ac64f295f8297f550",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/functions/uuid_v7.sql"
+        },
+        {
+          "checksum": "7d2123f8548413b979f3219d345c712cddc263196c0321b92b7218978f00ff6d",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/functions/update_updated_at_column.sql"
+        },
+        {
+          "checksum": "c051436735f0907f6013d188c12f74b0869dc390b542f27b612f454fd84c3bf4",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/table.sql"
+        },
+        {
+          "checksum": "a925737aa2b0863f8ac9c17c260fdc838df84389bbcb686915a8cb580ad44960",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/rls.sql"
+        },
+        {
+          "checksum": "96af15a0940e1689a924cb85b5658137e71944d377960818edb232e01c919775",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/grants.sql"
+        },
+        {
+          "checksum": "27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/table.sql"
+        },
+        {
+          "checksum": "4e8f0a412cbe0d859aa67263e44caa79df18d93fe64e5d7bb4e60404a84dfc7e",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/rls.sql"
+        },
+        {
+          "checksum": "fc9bc4534e70422b4a6f591018cf9523c0780a9bc91a030eb161012084ad2673",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/grants.sql"
+        },
+        {
+          "checksum": "c44cb7c23fc6daf84d4d2d5921df092e61256dfcf0d68de15db410a7f9ea81dd",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/triggers.sql"
+        },
+        {
+          "checksum": "3e33d06174d1e92ae7d7a668a36070d37c7a421a49abe9c9ee39dad4c28e3516",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/indexes.sql"
+        },
+        {
+          "checksum": "efba5a0178c94cc39d05de47a59d464875bcc222090e62a46d4e1ac9335efb30",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/types.sql"
+        },
+        {
+          "checksum": "fa82731fa3d5ba0327548ca9b65c69a03afbb7c292f03cdd0217358e384cad2d",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/table.sql"
+        },
+        {
+          "checksum": "d0d86f22ca5d9cc0f9a4dc22cd600f4b60ebdcf7bf7dc7d49e266ce4f4cc7953",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/rls.sql"
+        },
+        {
+          "checksum": "1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/checks.sql"
+        },
+        {
+          "checksum": "86c2c4133545000e5641178ab1d2f721041aa3c572b08985b901ee93589ec88b",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/grants.sql"
+        },
+        {
+          "checksum": "0469103f4e2ec3ab9933b0c81d6fcc9a97202860294119b234eebb176ae18b22",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/indexes.sql"
+        },
+        {
+          "checksum": "bc68413dbbe03f2ab81fadf448b15f44c528fc4fa4e215ce7670bb7e2064ce08",
+          "filePath": "/home/tim/Development/sqlsync/examples/test-env/schema/seeds/system_config.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/table.sql": {
+          "tableName": "public.tenants",
+          "parsedStructure": {
+            "tableName": "public.tenants",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "UUID",
+                "isNullable": false,
+                "defaultValue": "functions.uuid_v7()",
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "name",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "phone",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "setup_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "description",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "active",
+                "dataType": "BOOLEAN",
+                "isNullable": false,
+                "defaultValue": "TRUE",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "updated_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53",
+          "sourceFilePath": "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:40:45.760Z",
+      "fileChecksum": "e043ab7444b1a7e9402c52c3be34bb3c7e36af23fb3a3f6ff86363b6e11804ea"
+    }
+  },
+  "currentDeclarativeTables": {
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/table.sql": {
+      "tableName": "public.tenants",
+      "parsedStructure": {
+        "tableName": "public.tenants",
+        "columns": [
+          {
+            "name": "id",
+            "dataType": "UUID",
+            "isNullable": false,
+            "defaultValue": "functions.uuid_v7()",
+            "isPrimaryKey": true,
+            "isUnique": true
+          },
+          {
+            "name": "name",
+            "dataType": "TEXT",
+            "isNullable": true,
+            "defaultValue": "NULL",
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "phone",
+            "dataType": "TEXT",
+            "isNullable": true,
+            "defaultValue": "NULL",
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "email",
+            "dataType": "TEXT",
+            "isNullable": true,
+            "defaultValue": "NULL",
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "setup_at",
+            "dataType": "TIMESTAMP WITH TIME ZONE",
+            "isNullable": true,
+            "defaultValue": "NULL",
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "description",
+            "dataType": "TEXT",
+            "isNullable": true,
+            "defaultValue": "NULL",
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "active",
+            "dataType": "BOOLEAN",
+            "isNullable": false,
+            "defaultValue": "TRUE",
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "created_at",
+            "dataType": "TIMESTAMP WITH TIME ZONE",
+            "isNullable": false,
+            "defaultValue": "CURRENT_TIMESTAMP",
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "updated_at",
+            "dataType": "TIMESTAMP WITH TIME ZONE",
+            "isNullable": false,
+            "defaultValue": "CURRENT_TIMESTAMP",
+            "isPrimaryKey": false,
+            "isUnique": false
+          }
+        ]
+      },
+      "rawStatementChecksum": "27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53",
+      "sourceFilePath": "schema/tables/tenants/table.sql"
+    }
+  },
+  "currentFileChecksums": {
+    "/home/tim/Development/sqlsync/examples/test-env/schema/schemas.sql": "8586a1ed3670e93a36af08508a12fddf38f388cbafc59e10476bdf8f2261cb3d",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/extensions.sql": "3d654b5da0849c26ba799a33e1d8af330dc7adca808be02d9943999e207a7919",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/roles/roles.sql": "e2c8e345aa1b94f4cb24a1ed618de151ad2c385a0a1a00978b04c1dc3f0ee3b6",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/functions/uuid_v7.sql": "8133950c3aaba41283dc926c68d5f8f91cd17ba2837d24481b9c9f3165109800",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/functions/update_updated_at_column.sql": "df599c24644c520bbd143f3097d3eb50e5e573d884e9c19e357bb78ba8f3eef6",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/table.sql": "ec8dae84358dc44b66cb3046918f5cc4ee189a01e5cc4130b044e18bf22df1cc",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/rls.sql": "a925737aa2b0863f8ac9c17c260fdc838df84389bbcb686915a8cb580ad44960",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/grants.sql": "2c9023cecacb0a202761c54a50ed1b02d02ed71bf2b9f764ca99ba5f9a943d13",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/table.sql": "27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/rls.sql": "4e8f0a412cbe0d859aa67263e44caa79df18d93fe64e5d7bb4e60404a84dfc7e",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/grants.sql": "6afa5bfa7dc1589ef017e2e5e3e3900aa7ba4fa0ded6acb82a74dcfac068f2b5",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/triggers.sql": "4582bea585b618339938db474dfda8bc3ee16f02d0b8db450b21f75e500880b7",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/indexes.sql": "c281758d30d5d04b0d3217f8fee825b5e84f7adce7b5f0a96e7c07e71bdf6ec4",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/types.sql": "ca5bc105960eb9250303831a9b73c72f0254b9e0d292f7a473a5dd5e432a6726",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/table.sql": "1bd3aae10f64ee9963048c4c7582d0e8fd5d9c292a43a85514cb5d9684234662",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/rls.sql": "d0d86f22ca5d9cc0f9a4dc22cd600f4b60ebdcf7bf7dc7d49e266ce4f4cc7953",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/checks.sql": "1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/grants.sql": "20747b6855899882518991aa4d4c59b76dbc8d978be7be0b2253437043b033cc",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/indexes.sql": "0469103f4e2ec3ab9933b0c81d6fcc9a97202860294119b234eebb176ae18b22",
+    "/home/tim/Development/sqlsync/examples/test-env/schema/seeds/system_config.sql": "bc68413dbbe03f2ab81fadf448b15f44c528fc4fa4e215ce7670bb7e2064ce08"
+  }
+}

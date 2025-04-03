@@ -2,9 +2,9 @@
 
 ## Current Development Focus
 
-We've successfully fixed all test failures in the SQLSync project and implemented rollback functionality. Our next focus will be on adding comprehensive tests for the new rollback features.
+We've successfully enhanced the SQLSync project with improved rollback functionality, debugging capabilities, and fixed several issues with path handling and state management. Our next focus will be on testing these enhancements and cleaning up unused code.
 
-### ✅ Fixed Issues (Complete)
+### Fixed Issues (Complete)
 
 - **Multi-developer Workflow Test**: Fixed in `collaboration-manager.test.ts` by properly tracking and accounting for migrations across multiple developers.
 - **Declarative Tables Validation**: Fixed in `sql-processor.ts` to correctly validate CREATE TABLE statements when used with other SQL statements.
@@ -12,17 +12,31 @@ We've successfully fixed all test failures in the SQLSync project and implemente
 - **Mock Implementation**: Fixed `chalk` mock in `generate.test.ts` to properly support chained method calls like `chalk.red.bold()`.
 - **Sync Command Tests**: Fixed issues in `sync.test.ts` by properly mocking the `detectPendingChanges` function and updating test assertions to match the actual behavior.
 - **Directory Traversal**: Fixed how the directory traverser handles nested directory structures with source names as physical directories.
+- **Path Handling**: Resolved inconsistencies between absolute and relative paths that caused false positives in change detection.
 
-### ✅ Implemented Rollback Functionality (Complete)
+### Enhanced Rollback Functionality (Complete)
 
 - **Migration-Name Based Rollback**: Implemented rollback that requires using migration filenames (instead of numeric indices) for clarity and safety.
 - **Migration Protection**: Added the ability to mark/unmark migrations to prevent accidental rollbacks of critical changes.
 - **Migration Listing**: Added `--list` option to display available migrations for rollback, ordered by timestamp. This can be used without specifying a migration name.
 - **Rollback Confirmation**: Added interactive prompts for rollback operations with the option to bypass using `--force`.
 - **Configuration Controls**: Added `maxRollbacks` option in config to limit the number of migrations that can be marked.
-- **Improved CLI Interface**: Updated the command to make migration names optional when listing migrations (`sqlsync rollback --list`).
+- **Delete After Rollback**: Added `--delete-files` option to allow physical removal of rolled back migration files with appropriate confirmation prompts.
+- **Post-Rollback State Consistency**: Implemented proper file checksum rebuilding to ensure the system can continue operating correctly after rollback.
 
-### 🏗️ Configuration Structure
+### Added Debug Capabilities (Complete)
+
+- **Flexible Debug Utility**: Created a dedicated debugging framework that supports different output levels (basic, verbose).
+- **Environment Detection**: Debug can be enabled via `SQLSYNC_DEBUG` environment variable or when running in development mode.
+- **Command-line Control**: Added `--debug [level]` CLI option to enable debugging for a single command execution.
+- **Consistent Debug Output**: Standardized debug output format and organization across the codebase.
+
+### Simplified Merge Process (Complete)
+- **Streamlined Sync Command**: Focused on the core capability of tracking migrations from all developers without complex conflict detection.
+- **Reliable State Management**: Ensured state file properly records migration history and checksums from all developers.
+- **Local vs. Global Tracking**: Maintained separation between all known migrations (state file) and locally applied migrations (local-applied file).
+
+### Configuration Structure
 
 SQLSync uses a sophisticated configuration structure to support complex nested directories:
 
@@ -63,88 +77,50 @@ sources:
 
 4. **Nested Configurations**: Each subdirectory can have its own configuration for further customization.
 
-### 🚧 Upcoming Work: Rollback Testing
+### Upcoming Work: Testing and Cleanup
 
-- **Goal**: Create comprehensive tests for the rollback functionality
+- **Goal**: Ensure all new features have appropriate test coverage
 - **Test Cases Needed**:
   - Basic rollback behavior
-  - Marking/unmarking migrations
-  - Listing available migrations
-  - Handling errors (marked migrations, invalid names)
-  - Configuration limits (maxRollbacks)
+  - File deletion during rollback
+  - Post-rollback state consistency
+  - Debug utility functionality
+  - Path handling with mixed absolute/relative paths
+- **Cleanup Tasks**:
+  - Remove redundant code
+  - Ensure consistent error handling
+  - Standardize command interfaces
 
 ## Project Structure
 
 ### Core Components
 
 - **SQL Processor** (`src/core/sql-processor.ts`): Handles SQL parsing, validation, and directives processing.
-- **Collaboration Manager** (`src/core/collaboration-manager.ts`): Manages multi-developer collaboration, including synchronization and conflict detection.
 - **Directory Traverser** (`src/core/directory-traverser.ts`): Processes SQL files according to the directory structure defined in the config.
 - **Config Loader** (`src/core/config-loader.ts`): Loads and validates the SQLSync configuration.
+- **Diff Engine** (`src/core/diff-engine.ts`): Detects changes between current and previous states.
+- **State Manager** (`src/core/state-manager.ts`): Maintains state across migrations and rollbacks.
+- **Debug Utility** (`src/utils/debug.ts`): Provides configurable debugging capabilities.
 
 ### Command Implementations
 
 - **Generate** (`src/commands/generate.ts`): Generates migration files based on detected changes.
 - **Sync** (`src/commands/sync.ts`): Synchronizes migrations from other developers.
 - **Status** (`src/commands/status.ts`): Shows the current status of SQL files and migrations.
-- **Rollback** (`src/commands/rollback.ts`): Reverts previously applied migrations, with support for marking critical migrations.
+- **Rollback** (`src/commands/rollback.ts`): Reverts previously applied migrations, with support for marking critical migrations and deletion of rolled back files.
 
 ## Testing Strategy
 
 ### Core Tests
 
 - `sql-processor.test.ts`: Tests SQL parsing and validation logic
-- `collaboration-manager.test.ts`: Tests multi-developer workflows
+- `diff-engine.test.ts`: Tests change detection between states
 - `declarative-tables.test.ts`: Tests CREATE TABLE validation and ALTER detection
 - `split-statements.test.ts`: Tests statement-level tracking
+- `state-manager.test.ts`: Tests state persistence and reconciliation
 
 ### Command Tests
 
 - `generate.test.ts`: Tests migration generation with color-coded output
 - `sync.test.ts`: Tests synchronization between multiple developers
-- `rollback.test.ts` (to be created): Will test the rollback functionality
-
-## Key Features Implementation
-
-### Declarative Tables
-
-Files with `-- sqlsync: declarativeTable=true` are processed to:
-1. Validate they contain exactly one CREATE TABLE statement
-2. Track the table structure
-3. Generate ALTER TABLE statements when the structure changes
-
-### Multi-developer Collaboration
-
-The `collaboration-manager.ts` implements:
-1. State tracking with checksums for each SQL file
-2. Migration synchronization across developers
-3. Conflict detection when multiple developers change the same file
-
-### Color-coded Output
-
-The `generate` command uses chalk to provide color-coded output:
-- 🟢 Green for added items
-- 🟡 Yellow for modified items
-- 🔴 Red for deleted items with explicit warnings about DROP statements
-
-### Rollback Functionality
-
-The `rollback` command implements:
-1. Migration-based rollback that requires explicit migration names
-2. Protection of critical migrations through marking
-3. Interactive confirmation for safety with `--force` override
-4. Clear listing of available migrations for rollback
-
-## Development Workflow
-
-1. Make changes to code or tests
-2. Run specific tests: `npx jest tests/path/to/test.ts`
-3. Fix failing tests
-4. Run all tests: `npm test`
-5. Build the project: `npm run build`
-
-## Testing Tips
-
-- Use `console.log()` statements inside tests for debugging
-- Run individual test cases with: `npx jest -t "test case description"`
-- Check the actual vs. expected outputs in test failure messages
+- `rollback.test.ts`: Tests rollback functionality including migration protection and file deletion

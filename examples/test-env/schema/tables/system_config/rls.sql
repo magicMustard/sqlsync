@@ -1,0 +1,1 @@
+ALTER TABLE public.system_config ENABLE ROW LEVEL SECURITY;

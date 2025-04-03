@@ -1,0 +1,33 @@
+
+# SQLSync Test Configuration
+name: e2e-test
+
+# Schema directories and settings
+sources:
+  - directory: schema
+    fileIgnorePattern: "*"
+    orderedSubdirectories:
+      - tables
+      - functions
+      - indexes
+      
+# Tables - declarative schema definition
+tables:
+  directory: schema/tables
+  orderedFileSequence:
+    - table.sql
+    - rls.sql
+  orderedSubdirectoryFileOrder:
+    - table.sql
+    - rls.sql
+
+# Functions configuration
+functions:
+  directory: schema/functions
+  splitStatements: true
+
+# Migrations settings
+migrations:
+  directory: migrations
+  filenamePrefix: %Y%m%d%H%M%S
+  transactionMode: perFile

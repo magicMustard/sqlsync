@@ -2,32 +2,72 @@ import * as fs from 'fs';
 import * as path from 'path';
 // Use CommonJS require for chalk
 const chalk = require('chalk');
-import { loadConfig } from '../../src/core/config-loader';
-import { syncMigrations, loadEnhancedState, detectPendingChanges } from '../../src/core/collaboration-manager';
-import { EnhancedSqlSyncState } from '../../src/types/collaboration';
-import { SyncResult } from '../../src/types/collaboration';
+
+// Import the function to test
 import { syncCommand } from '../../src/commands/sync';
 
-// Mock all dependencies
+// Import functions to mock
+import { loadConfig } from '../../src/core/config-loader';
+import { loadState, saveState, saveMigrationToState } from '../../src/core/state-manager';
+import { SqlSyncState } from '../../src/types/state';
+import { diffStates } from '../../src/core/diff-engine'; // Although mocked, might be good practice to import
+import { traverseDirectories } from '../../src/core/directory-traverser';
+
+// Mock modules
 jest.mock('fs');
 jest.mock('path');
+jest.mock('chalk', () => ({
+  red: jest.fn((text) => text),
+  green: jest.fn((text) => text),
+  yellow: jest.fn((text) => text),
+  blue: jest.fn((text) => text),
+  white: jest.fn((text) => text),
+  bold: {
+    green: jest.fn((text) => text),
+    red: jest.fn((text) => text),
+    yellow: jest.fn((text) => text)
+  }
+}));
 jest.mock('../../src/core/config-loader');
-jest.mock('../../src/core/collaboration-manager');
+jest.mock('../../src/core/state-manager', () => ({
+  getHash: jest.fn().mockReturnValue('mocked-hash'), // Keep this simple mock
+  loadState: jest.fn(),
+  saveState: jest.fn(),
+  loadLocalAppliedMigrations: jest.fn().mockReturnValue([]),
+  saveLocalAppliedMigrations: jest.fn(),
+  saveMigrationToState: jest.fn(), // Mock this again
+  createInitialState: jest.fn() // Mock this too, just in case
+}));
+jest.mock('../../src/core/diff-engine', () => ({
+  diffStates: jest.fn().mockReturnValue({
+    hasChanges: true,
+    addedStatements: [],
+    modifiedStatements: [],
+    deletedStatements: [],
+    changedFileChecksums: {},
+    addedFileChecksums: {},
+    fileChanges: [] // This was missing before
+  })
+}));
+jest.mock('../../src/core/directory-traverser', () => ({
+  traverseDirectories: jest.fn().mockResolvedValue({
+    processedSections: [],
+    processedStatements: [],
+    fileChecksums: {}
+  })
+}));
+jest.mock('../../src/utils/logger', () => ({
+  logger: {
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn()
+  }
+}));
 
 describe('Sync Command', () => {
   // Mock process.exit
   const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => undefined as never);
-  
-  // Mock console methods
-  const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
-  const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-  
-  // Mock functions for logging
-  const mockLogger = {
-    info: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn()
-  };
   
   // Setup test data
   const mockConfigPath = '/fake/path/sqlsync.yaml';
@@ -35,7 +75,7 @@ describe('Sync Command', () => {
   const mockConfig = {
     config: {
       migrations: {
-        outputDir: mockMigrationsDir
+        outputDir: 'migrations'
       },
       sources: {
         schema: {
@@ -46,137 +86,91 @@ describe('Sync Command', () => {
   };
   
   // Mock state
-  const mockState: EnhancedSqlSyncState = {
-    lastUpdated: new Date().toISOString(),
-    files: {
-      'table1.sql': {
-        checksum: 'checksum1',
-        lastModifiedBy: '20250101000000_initial.sql'
+  const mockState: SqlSyncState = {
+    version: 1,
+    lastProductionMigration: null,
+    migrationHistory: ['20250101000000_initial.sql'],
+    migrations: {
+      '20250101000000_initial.sql': {
+        statements: [],
+        declarativeTables: {},
+        createdAt: new Date().toISOString()
       }
     },
-    migrations: [
-      {
-        name: '20250101000000_initial.sql',
-        timestamp: new Date().toISOString(),
-        appliedChanges: ['table1.sql']
-      }
-    ]
-  };
-  
-  // Mock sync result
-  const mockSyncResult: SyncResult = {
-    newMigrations: [],
-    conflicts: [],
-    pendingChanges: ['pendingChange1']
+    currentDeclarativeTables: {},
+    currentFileChecksums: {
+      'schema/tables/users.sql': 'checksum1'
+    }
   };
   
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
     
-    // Default mock implementations
-    (loadEnhancedState as jest.Mock).mockResolvedValue(mockState);
-    (syncMigrations as jest.Mock).mockResolvedValue(mockSyncResult);
-    (detectPendingChanges as jest.Mock).mockResolvedValue(['pendingChange1']);
+    // --- Configure Mocks ---
+    // Configure loadState mock (needs to be done here now)
+    (loadState as jest.Mock).mockReturnValue(JSON.parse(JSON.stringify(mockState))); 
+    // Configure loadConfig mock
+    (loadConfig as jest.Mock).mockReturnValue(mockConfig);
     
     // Mock path functions
     (path.join as jest.Mock).mockImplementation((...args: string[]) => {
       return args.join('/').replace(/\/+/g, '/');
     });
     
-    // Mock fs functions
-    (fs.existsSync as jest.Mock).mockReturnValue(true);
-  });
-  
-  it('should execute sync successfully when no conflicts are detected', async () => {
-    // Setup: Sync finds one new migration
-    (loadConfig as jest.Mock).mockReturnValue({
-      config: {
-        migrations: {
-          outputDir: mockMigrationsDir
-        },
-        sources: {
-          schema: {
-            order: ['schema/tables']
-          }
-        }
-      }
-    });
-    (syncMigrations as jest.Mock).mockResolvedValue({
-      newMigrations: [
-        {
-          name: '20250102000000_new_feature.sql',
-          timestamp: new Date().toISOString(),
-          appliedChanges: ['new_table.sql']
-        }
-      ],
-      conflicts: [],
-      pendingChanges: ['pendingChange1']
+    (path.dirname as jest.Mock).mockImplementation((p: string) => {
+      return p.split('/').slice(0, -1).join('/');
     });
     
+    // Mock fs functions
+    (fs.existsSync as jest.Mock).mockReturnValue(true);
+    (fs.readdirSync as jest.Mock).mockReturnValue(['20250101000000_initial.sql', '20250403123000_new_table.sql']);
+    (fs.readFileSync as jest.Mock).mockReturnValue('-- Test migration content');
+  });
+  
+  it('should execute sync successfully when new migrations are found', async () => {
     // Execute sync command
-    await expect(syncCommand(mockConfigPath, { verbose: false })).resolves.not.toThrow();
+    await expect(syncCommand(mockConfigPath, {})).resolves.not.toThrow();
     
     // Verify
     expect(loadConfig).toHaveBeenCalledWith(mockConfigPath);
-    expect(loadEnhancedState).toHaveBeenCalledWith(mockConfigPath);
-    expect(syncMigrations).toHaveBeenCalledWith(
-      mockConfigPath,
-      mockMigrationsDir,
-      mockState
-    );
-    
-    // No need to check mockExit as syncCommand doesn't call process.exit
+    expect(loadState).toHaveBeenCalledWith(mockConfigPath);
+    expect(traverseDirectories).toHaveBeenCalled();
+    // Verify that sync called saveMigrationToState for the new migration
+    expect(saveMigrationToState).toHaveBeenCalled();
   });
   
-  it('should report conflicts when detected', async () => {
-    // Setup: Sync finds conflicts
-    (loadConfig as jest.Mock).mockReturnValue({
-      config: {
-        migrations: {
-          outputDir: mockMigrationsDir
-        },
-        sources: {
-          schema: {
-            order: ['schema/tables']
-          }
-        }
-      }
-    });
-    (syncMigrations as jest.Mock).mockResolvedValue({
-      newMigrations: [],
-      conflicts: [
-        {
-          file: 'table1.sql',
-          migrations: ['20250102000000_other_migration.sql'],
-          description: 'File changed locally and in migration'
-        }
-      ],
-      pendingChanges: ['pendingChange1']
-    });
+  it('should handle missing migration directory gracefully', async () => {
+    // Setup: Migration directory doesn't exist
+    (fs.existsSync as jest.Mock).mockReturnValue(false);
+    (fs.mkdirSync as jest.Mock).mockImplementation(() => {});
     
-    // Execute sync command - it should NOT throw when there are conflicts
-    // (The CLI would handle displaying conflicts and exit code)
-    await expect(syncCommand(mockConfigPath, { verbose: false })).resolves.not.toThrow();
+    // Execute sync command
+    await expect(syncCommand(mockConfigPath, {})).resolves.not.toThrow();
+    
+    // Verify directory was created
+    expect(fs.mkdirSync).toHaveBeenCalled();
   });
   
-  it('should throw error when state file is missing', async () => {
-    // Setup: No state file exists
+  it('should handle errors during sync', async () => {
+    // Setup: loadState throws an error
+    (loadState as jest.Mock).mockImplementation(() => {
+      throw new Error('Failed to load state');
+    });
+    
+    // Execute sync command - it should propagate the error
+    await expect(syncCommand(mockConfigPath, {})).rejects.toThrow('Failed to load state');
+  });
+  
+  it('should handle missing config gracefully', async () => {
+    // Setup: loadConfig returns a config with missing migrations.outputDir
     (loadConfig as jest.Mock).mockReturnValue({
       config: {
-        migrations: {
-          outputDir: mockMigrationsDir
-        },
-        sources: {
-          schema: {
-            order: ['schema/tables']
-          }
-        }
+        // Missing migrations section
       }
     });
-    (loadEnhancedState as jest.Mock).mockRejectedValue(new Error('State file not found'));
     
-    // Execute sync command - it should throw the error
-    await expect(syncCommand(mockConfigPath, { verbose: false })).rejects.toThrow('State file not found');
+    // Execute sync command - it should throw a specific error
+    await expect(syncCommand(mockConfigPath, {})).rejects.toThrow('Missing required config');
   });
 });

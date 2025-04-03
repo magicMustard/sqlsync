@@ -288,4 +288,18 @@ export class PostgresTableParser {
       isUnique: isUnique || pkInDef // PRIMARY KEY columns are implicitly UNIQUE
     };
   }
+  
+  /**
+   * Extract column definition directly from an AST node
+   * This is provided for compatibility with code that was using node-sql-parser
+   * 
+   * @param definitionNode The AST node containing the column definition
+   * @returns A ColumnDefinition object or null
+   */
+  public static extractColumnDefinition(definitionNode: any): ColumnDefinition | null {
+    // Since we've removed node-sql-parser dependency, 
+    // this is just a stub to maintain compatibility with existing code
+    console.warn('extractColumnDefinition from AST node is deprecated - using PostgresTableParser directly instead');
+    return null;
+  }
 }

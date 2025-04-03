@@ -1,0 +1,65 @@
+config:
+  migrations:
+    cli:
+      create: supabase migrations new
+      up: supabase migrations up
+    outputDir: ./migrations
+
+schema:
+  order:
+    - schemas.sql
+    - extensions.sql
+    - roles
+    - functions
+    - tables
+    - seeds
+  roles:
+    order:
+      - roles.sql
+      - grants.sql
+  functions:
+    order:
+      - uuid_v7.sql
+      - update_updated_at_column.sql
+      - company_enforce_tenant_id.sql
+      - reseller_enforce_tenant_id.sql
+      - get_vault_secrets.sql
+      - notify_api.sql
+  tables:
+    order:
+      - system_config
+      - ai_engines
+      - ai_engine_pipelines
+      - integrations
+      - countries
+      - states
+      - subscriptions
+      - tenants
+      - tenant_subscriptions
+      - profiles
+      - agents
+      - agent_routed_profiles
+      - integration_tenants
+      - products
+      - product_integrations
+      - agent_tenant_integrations
+      - caller_contexts
+      - conversations
+    orderedSubdirectoryFileOrder:
+      - types.sql
+      - table.sql
+      - rls.sql
+      - checks.sql
+      - grants.sql
+      - policies.sql
+      - functions.sql
+      - triggers.sql
+      - indexes.sql
+  seeds:
+    order:
+      - system_config.sql
+      - ai_engines.sql
+      - ai_engine_pipelines.sql
+      - integrations.sql
+      - countries.sql
+      - states.sql

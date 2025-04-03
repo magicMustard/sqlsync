@@ -127,6 +127,9 @@ sqlsync rollback --list
 # Roll back to a specific migration (that migration and all newer ones will be rolled back)
 sqlsync rollback 20250401_add_users.sql
 
+# Roll back and delete the rolled back migration files
+sqlsync rollback 20250401_add_users.sql --delete-files
+
 # Mark a migration to prevent accidental rollback
 sqlsync rollback 20250401_add_users.sql --mark
 
@@ -134,7 +137,24 @@ sqlsync rollback 20250401_add_users.sql --mark
 sqlsync rollback 20250401_add_users.sql --unmark
 ```
 
-SQLSync also tracks which developers applied which migrations, making it easier to understand the history of database changes.
+The system ensures state consistency after rollback, allowing development to continue smoothly.
+
+### 🐞 Debug Support
+
+SQLSync includes a powerful debug utility to help troubleshoot issues:
+
+```bash
+# Enable basic debugging information
+sqlsync <command> --debug
+
+# Enable verbose debugging with more detailed information
+sqlsync <command> --debug verbose
+```
+
+Debug output can be controlled through:
+- Command-line flag: `--debug [basic|verbose]`
+- Environment variable: `SQLSYNC_DEBUG=true`
+- Development mode: Automatically enabled when `NODE_ENV=development`
 
 ### 🎨 Enhanced CLI Experience
 
@@ -222,17 +242,21 @@ Add these directives as comments in your SQL files:
 
 ## Commands
 
-| Command                               | Description                                        |
-| ------------------------------------- | -------------------------------------------------- |
-| `sqlsync init`                        | Creates a default configuration                    |
-| `sqlsync generate <migration-name>`   | Generates migration files based on changes         |
-| `sqlsync status`                      | Shows current status of SQL files vs state         |
-| `sqlsync sync`                        | Synchronizes with migrations from other developers |
-| `sqlsync rollback <migration-name>`   | Rolls back to a specific migration (inclusive)     |
-| `sqlsync rollback <migration-name> --list`      | Lists migrations available for rollback            |
-| `sqlsync rollback <migration-name> --mark`      | Marks a migration to prevent accidental rollback      |
-| `sqlsync rollback <migration-name> --unmark`    | Unmarks a previously protected migration           |
-| `sqlsync migrate`                     | Runs migrations (if external tool configured)      |
+| Command                                    | Description                                        |
+| ------------------------------------------ | -------------------------------------------------- |
+| `sqlsync init`                             | Creates a default configuration                    |
+| `sqlsync generate <migration-name>`        | Generates migration files based on changes         |
+| `sqlsync generate <name> --no-mark-applied` | Generate without marking as locally applied        |
+| `sqlsync status`                           | Shows current status of SQL files vs state         |
+| `sqlsync sync`                             | Synchronizes with migrations from other developers |
+| `sqlsync rollback <migration-name>`        | Rolls back to a specific migration (inclusive)     |
+| `sqlsync rollback --list`                  | Lists migrations available for rollback            |
+| `sqlsync rollback <name> --mark`           | Marks a migration to prevent accidental rollback   |
+| `sqlsync rollback <name> --unmark`         | Unmarks a previously protected migration           |
+| `sqlsync rollback <name> --delete-files`   | Deletes the rolled back migration files            |
+| `sqlsync rollback <name> --force`          | Skips confirmation prompts during rollback         |
+| `sqlsync migrate`                          | Runs migrations (if external tool configured)      |
+| `sqlsync --debug [level]`                  | Enables debug output (levels: basic, verbose)      |
 
 ## Development
 

@@ -1,0 +1,1260 @@
+{
+  "version": 1,
+  "lastProductionMigration": null,
+  "migrationHistory": [
+    "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/20250403090614_initial_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090614_add_last_login.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090615_add_orders.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_initial_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_add_last_login.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_resolve_changes.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_add_orders.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_combined_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090922_initial_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090922_add_last_login.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090922_resolve_changes.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090922_add_orders.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090923_combined_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090936_initial_schema.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090936_add_last_login.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090936_resolve_changes.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090936_add_orders.sql",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090937_combined_schema.sql"
+  ],
+  "migrations": {
+    "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/20250403090614_initial_schema.sql": {
+      "statements": [
+        {
+          "checksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              }
+            ]
+          },
+          "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:06:14.595Z",
+      "fileChecksum": "86cab96f4d8ac0917c7b30bf1ad02a896ccc7619dcc39fa3aff7705777bf74d3"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090614_add_last_login.sql": {
+      "statements": [
+        {
+          "checksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:06:14.825Z",
+      "fileChecksum": "6faf3139f4a89326345ff699ad1ec66d3cc8a2e40e9f36915c6a751df5429dcd"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090615_add_orders.sql": {
+      "statements": [
+        {
+          "checksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:06:15.117Z",
+      "fileChecksum": "e5d38cab8d8148b70dc48585ff9e1a43a88b1f8678c27011de777bd029a1512b"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_initial_schema.sql": {
+      "statements": [
+        {
+          "checksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              }
+            ]
+          },
+          "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:08:54.008Z",
+      "fileChecksum": "74ae7dd94259a5925aad01bef591d906d6bb00557ddabada1fae1afcab3db0a6"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_add_last_login.sql": {
+      "statements": [
+        {
+          "checksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:08:54.273Z",
+      "fileChecksum": "7f83f9dc01d287a7e32fc6ad9246c4233ac26d8d0b4831b907ad25532f9c1f99"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_resolve_changes.sql": {
+      "statements": [
+        {
+          "checksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:08:54.480Z",
+      "fileChecksum": "cf113dc7898ec438b90777604e2a65d3d61eeb5330526d253b178877ebdaf965"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_add_orders.sql": {
+      "statements": [
+        {
+          "checksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:08:54.696Z",
+      "fileChecksum": "e7a1d275270a4650f8ca3b729777d9e21f210fcbe660cab6eacff8564e60b302"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090854_combined_schema.sql": {
+      "statements": [
+        {
+          "checksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:08:54.894Z",
+      "fileChecksum": "0d1559f13f1b6401842342d223069f455b0494987b03bd82af6a458d32324534"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090922_initial_schema.sql": {
+      "statements": [
+        {
+          "checksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              }
+            ]
+          },
+          "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:22.302Z",
+      "fileChecksum": "7f04ce379737b34ff964a6f30268afb9c33d66c2a5a1f7497d3b4d42a9e8a3f6"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090922_add_last_login.sql": {
+      "statements": [
+        {
+          "checksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:22.534Z",
+      "fileChecksum": "4f8b1ce444b1e5351cdc7b394bafdd1f7a736e48f5e725d7cf621fcda317f601"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090922_resolve_changes.sql": {
+      "statements": [
+        {
+          "checksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:22.751Z",
+      "fileChecksum": "b278d5c8faddd53a9ae9c85a7f9abafbc65ac2249a7b2d895fa3e45be7d419d8"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090922_add_orders.sql": {
+      "statements": [
+        {
+          "checksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:22.967Z",
+      "fileChecksum": "a39a7809e9c54db00ffaac137a63e69560646e5fbdab37dc63ee6e9ad7b06f53"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090923_combined_schema.sql": {
+      "statements": [
+        {
+          "checksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:23.166Z",
+      "fileChecksum": "4d2790bcc658c75e60ec939dfd199ff0d1930dd980724f51cad9edc505c0b25d"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090936_initial_schema.sql": {
+      "statements": [
+        {
+          "checksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              }
+            ]
+          },
+          "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:36.140Z",
+      "fileChecksum": "28cebfaef368e40a0a1dd0485776f7f52db5b308094fae8ac42110b834c0e651"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090936_add_last_login.sql": {
+      "statements": [
+        {
+          "checksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "1c263759e5486b5a35c7fa605e703e6c062fee3f17b47fd568bd6c22264606df",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:36.393Z",
+      "fileChecksum": "a611cec3113fc88cd0858ebbc8e2202735e8cc5ea07f5b600672e03b34bdef55"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090936_resolve_changes.sql": {
+      "statements": [
+        {
+          "checksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:36.599Z",
+      "fileChecksum": "2cfb91a549fbfb3e79c62a400e25abb9c01340e9b6c9f527aa3dab37847d5f66"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090936_add_orders.sql": {
+      "statements": [
+        {
+          "checksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:36.822Z",
+      "fileChecksum": "30b3b182ed9d8fbc2b0659e030db77ceb417705e50e5b476ed69518fc882f74b"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/20250403090937_combined_schema.sql": {
+      "statements": [
+        {
+          "checksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "filePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "../test-1743671174408/schema/tables/users/table.sql"
+        },
+        {
+          "checksum": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+          "filePath": "schema/tables/users/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+          "tableName": "public.users",
+          "parsedStructure": {
+            "tableName": "public.users",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "SERIAL",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "username",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": false,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": true
+              },
+              {
+                "name": "last_login",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": null,
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP",
+                "isNullable": true,
+                "defaultValue": "NOW()",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+          "sourceFilePath": "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql"
+        }
+      },
+      "createdAt": "2025-04-03T09:09:37.034Z",
+      "fileChecksum": "ec5a11544bbb22b9de677c6b7f9554fed012cd3095544aaceca93b469472ed28"
+    }
+  },
+  "currentDeclarativeTables": {
+    "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql": {
+      "tableName": "public.users",
+      "parsedStructure": {
+        "tableName": "public.users",
+        "columns": [
+          {
+            "name": "id",
+            "dataType": "SERIAL",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": true,
+            "isUnique": true
+          },
+          {
+            "name": "username",
+            "dataType": "TEXT",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "email",
+            "dataType": "TEXT",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": true
+          }
+        ]
+      },
+      "rawStatementChecksum": "e6c2f6b55b6dac624867337a89c2684170130f839030caf8495443cbb3c094f8",
+      "sourceFilePath": "schema/tables/users/table.sql"
+    },
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": {
+      "tableName": "public.users",
+      "parsedStructure": {
+        "tableName": "public.users",
+        "columns": [
+          {
+            "name": "id",
+            "dataType": "SERIAL",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": true,
+            "isUnique": true
+          },
+          {
+            "name": "username",
+            "dataType": "TEXT",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "email",
+            "dataType": "TEXT",
+            "isNullable": false,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": true
+          },
+          {
+            "name": "last_login",
+            "dataType": "TIMESTAMP",
+            "isNullable": true,
+            "defaultValue": null,
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "created_at",
+            "dataType": "TIMESTAMP",
+            "isNullable": true,
+            "defaultValue": "NOW()",
+            "isPrimaryKey": false,
+            "isUnique": false
+          }
+        ]
+      },
+      "rawStatementChecksum": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af",
+      "sourceFilePath": "schema/tables/users/table.sql"
+    }
+  },
+  "currentFileChecksums": {
+    "/home/tim/Development/sqlsync/e2e-test-temp/test-1743671174408/schema/tables/users/table.sql": "25851915f54f76c5dd278a9137518275bcb83b5b78649b2867c80bd1f7315dd4",
+    "/home/tim/Development/sqlsync/e2e-test-temp/dev2/schema/tables/users/table.sql": "f1f10b5ecd497306d0a906c124b9598129b558fa3a05b085a7241160e735c3af"
+  }
+}

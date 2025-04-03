@@ -1,6 +1,6 @@
 {
 	"name": "@magic-mustard/sqlsync",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "SQLSync simplifies database schema evolution by allowing a declarative approach to table management",
 	"main": "dist/index.js",
 	"bin": {
@@ -14,6 +14,7 @@
 		"start": "node dist/cli.js",
 		"dev": "ts-node src/cli.ts",
 		"test": "jest",
+		"test:e2e": "jest --config jest-e2e.config.js",
 		"format": "prettier --write \"**/*.{ts,js,json,md}\"",
 		"prepublishOnly": "pnpm run build"
 	},
@@ -28,7 +29,6 @@
 		"inquirer": "^12.5.0",
 		"js-yaml": "^4.1.0",
 		"module-alias": "^2.2.3",
-		"node-sql-parser": "^5.3.8",
 		"typescript": "^5.4.5",
 		"yaml": "^2.3.4"
 	},

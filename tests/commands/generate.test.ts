@@ -5,33 +5,51 @@ const chalk = require('chalk');
 import { loadConfig } from '../../src/core/config-loader';
 import { traverseDirectories } from '../../src/core/directory-traverser';
 import { diffStates } from '../../src/core/diff-engine';
-import { loadEnhancedState, syncMigrations } from '../../src/core/collaboration-manager';
+import { loadState, saveState, saveMigrationToState, loadLocalAppliedMigrations, saveLocalAppliedMigrations } from '../../src/core/state-manager';
 import { generateMigrationContent } from '../../src/core/migration-generator';
 import { ProcessedSection, ProcessedSqlFile } from '../../src/types/processed-sql';
+import { SqlSyncState } from '../../src/types/state';
+import { generateCommand } from '../../src/commands/generate';
 
 // Mock all dependencies
 jest.mock('fs');
 jest.mock('path');
 jest.mock('commander');
 jest.mock('chalk', () => {
-  // Use a more flexible approach that TypeScript will accept
-  const createColorFn = (colorName: string) => {
-    const colorFn: any = jest.fn((text) => `${colorName.toUpperCase()}:${text}`);
-    colorFn.bold = jest.fn((text) => `${colorName.toUpperCase()}_BOLD:${text}`);
-    return colorFn;
-  };
+  const boldMock = jest.fn().mockImplementation(text => text);
+  // Explicitly create a mock with the bold property
+  const redMock = jest.fn().mockImplementation(text => text) as jest.Mock & { bold: jest.Mock };
+  redMock.bold = boldMock;
   
   return {
-    green: createColorFn('green'),
-    yellow: createColorFn('yellow'),
-    red: createColorFn('red'),
-    bold: jest.fn((text) => `BOLD:${text}`)
+    red: redMock,
+    green: jest.fn().mockImplementation(text => text),
+    yellow: jest.fn().mockImplementation(text => text),
+    blue: jest.fn().mockImplementation(text => text),
+    gray: jest.fn().mockImplementation(text => text),
+    cyan: jest.fn().mockImplementation(text => text),
+    magenta: jest.fn().mockImplementation(text => text),
+    default: {
+      red: redMock,
+      green: jest.fn().mockImplementation(text => text),
+      yellow: jest.fn().mockImplementation(text => text),
+      blue: jest.fn().mockImplementation(text => text),
+      gray: jest.fn().mockImplementation(text => text),
+      cyan: jest.fn().mockImplementation(text => text),
+      magenta: jest.fn().mockImplementation(text => text)
+    }
   };
 });
 jest.mock('../../src/core/config-loader');
 jest.mock('../../src/core/directory-traverser');
 jest.mock('../../src/core/diff-engine');
-jest.mock('../../src/core/collaboration-manager');
+jest.mock('../../src/core/state-manager', () => ({
+  loadState: jest.fn(),
+  saveState: jest.fn(),
+  saveMigrationToState: jest.fn(),
+  loadLocalAppliedMigrations: jest.fn().mockReturnValue([]),
+  saveLocalAppliedMigrations: jest.fn()
+}));
 jest.mock('../../src/core/migration-generator');
 
 // We need to mock console.log and process.exit to test the CLI behavior
@@ -60,25 +78,14 @@ describe('Generate Command', () => {
     }
   };
   
-  const mockPreviousState: ProcessedSection[] = [
-    {
-      sectionName: 'test-section',
-      items: [
-        {
-          filePath: 'table1.sql',
-          fileName: 'table1.sql',
-          statements: [
-            {
-              checksum: 'checksum1',
-              normalizedStatement: 'CREATE TABLE table1 (id INT)',
-            }
-          ],
-          rawFileChecksum: 'raw-checksum1',
-          rawFileContent: 'CREATE TABLE table1 (id INT)'
-        }
-      ]
-    }
-  ];
+  const mockPreviousState: SqlSyncState = {
+    version: 1,
+    lastProductionMigration: null,
+    migrationHistory: [],
+    migrations: {},
+    currentDeclarativeTables: {},
+    currentFileChecksums: {}
+  };
   
   const mockCurrentSections: ProcessedSection[] = [
     {
@@ -118,12 +125,26 @@ describe('Generate Command', () => {
       {
         type: 'modified',
         filePath: 'table1.sql',
-        previous: mockPreviousState[0].items[0] as ProcessedSqlFile,
+        previous: {
+          filePath: 'table1.sql',
+          fileName: 'table1.sql',
+          statements: [
+            {
+              checksum: 'checksum1',
+              normalizedStatement: 'CREATE TABLE table1 (id INT)',
+            }
+          ],
+          rawFileChecksum: 'raw-checksum1',
+          rawFileContent: 'CREATE TABLE table1 (id INT)'
+        },
         current: mockCurrentSections[0].items[0] as ProcessedSqlFile,
         statementChanges: [
           {
             type: 'modified',
-            previous: (mockPreviousState[0].items[0] as ProcessedSqlFile).statements[0],
+            previous: {
+              checksum: 'checksum1',
+              normalizedStatement: 'CREATE TABLE table1 (id INT)',
+            },
             current: (mockCurrentSections[0].items[0] as ProcessedSqlFile).statements[0]
           }
         ]
@@ -134,33 +155,6 @@ describe('Generate Command', () => {
         current: mockCurrentSections[0].items[1] as ProcessedSqlFile
       }
     ]
-  };
-  
-  // Sample enhanced state for collaboration
-  const mockEnhancedState = {
-    version: '1.0.0',
-    timestamp: new Date().toISOString(),
-    files: {
-      'table1.sql': {
-        checksum: 'checksum1',
-        path: 'table1.sql',
-        lastModified: new Date().toISOString()
-      }
-    },
-    migrations: [
-      {
-        name: '20250101000000_initial.sql',
-        timestamp: new Date().toISOString(),
-        appliedChanges: ['table1.sql']
-      }
-    ]
-  };
-  
-  // Mock result for syncMigrations
-  const mockSyncResult = {
-    newMigrations: [],
-    conflicts: [],
-    pendingChanges: []
   };
   
   // Setup before tests
@@ -193,6 +187,14 @@ describe('Generate Command', () => {
     process.exit = originalProcessExit;
   });
   
+  // Before any tests in the file, ensure we mock the state manager functions correctly
+  beforeEach(() => {
+    jest.clearAllMocks();
+    
+    // Ensure proper mocks for loadLocalAppliedMigrations 
+    (loadLocalAppliedMigrations as jest.Mock).mockReturnValue([]);
+  });
+  
   // Reset before each test
   beforeEach(() => {
     jest.resetAllMocks();
@@ -206,8 +208,8 @@ describe('Generate Command', () => {
     (path.dirname as jest.Mock).mockReturnValue(mockBaseDir);
     (loadConfig as jest.Mock).mockReturnValue(mockConfig);
     (traverseDirectories as jest.Mock).mockResolvedValue(mockCurrentSections);
-    (loadEnhancedState as jest.Mock).mockResolvedValue(mockEnhancedState);
-    (syncMigrations as jest.Mock).mockResolvedValue(mockSyncResult);
+    (loadState as jest.Mock).mockReturnValue(mockPreviousState);
+    (saveState as jest.Mock).mockReturnValue(undefined);
     (diffStates as jest.Mock).mockReturnValue(mockDifferences);
     (generateMigrationContent as jest.Mock).mockReturnValue('-- Migration content');
     (fs.existsSync as jest.Mock).mockReturnValue(true);
@@ -216,117 +218,47 @@ describe('Generate Command', () => {
   
   // Test the multi-developer collaboration feature
   describe('Multi-developer collaboration', () => {
-    it('should check for conflicts before generating migration', async () => {
+    it('should check for state before generating migration', async () => {
       // Setup mock implementations and return values
-      (loadEnhancedState as jest.Mock).mockResolvedValue(mockEnhancedState);
-      (syncMigrations as jest.Mock).mockResolvedValue({ newMigrations: [], conflicts: [] });
+      (loadState as jest.Mock).mockReturnValue(mockPreviousState);
       
-      // Setup mock command arguments
-      const command = new Command();
-      (command.opts as jest.Mock).mockReturnValue({
-        'skipConflictCheck': false,
-      });
+      // Call the generate command
+      await generateCommand(mockConfigPath, 'test-migration');
       
-      // Simulate the conflict check logic
-      if (!command.opts().skipConflictCheck) {
-        const state = await loadEnhancedState(mockConfigPath);
-        
-        // Fix: Set up syncMigrations with the correct parameters to match expectations
-        const mockMigrationsDir = '/fake/path/migrations';
-        (loadConfig as jest.Mock).mockResolvedValue({
-          config: {
-            migrations: {
-              outputDir: mockMigrationsDir
-            }
-          }
-        });
-        
-        // Make sure state is not null before calling syncMigrations
-        if (state) {
-          const syncResult = await syncMigrations(mockConfigPath, mockMigrationsDir, state);
-        }
-      }
-      
-      // 3. Verify the right functions were called
-      expect(loadEnhancedState).toHaveBeenCalledWith(mockConfigPath);
-      expect(syncMigrations).toHaveBeenCalledWith(
-        mockConfigPath, 
-        '/fake/path/migrations', 
-        mockEnhancedState
-      );
+      // Verify loadState was called
+      expect(loadState).toHaveBeenCalledWith(mockConfigPath);
+    });
+  });
+  
+  // Test handling conflicts when state file doesn't exist
+  it('should check for state before generating migration', async () => {
+    // Reset the loadState mock
+    (loadState as jest.Mock).mockReset();
+    
+    // Create a custom mock that throws an error
+    const customError = new Error('No existing state found');
+    (loadState as jest.Mock).mockImplementation(() => {
+      throw customError;
     });
     
-    it('should stop migration generation if conflicts are found', async () => {
-      // Setup: Conflicts are detected during sync
-      (loadEnhancedState as jest.Mock).mockResolvedValue(mockEnhancedState);
-      (syncMigrations as jest.Mock).mockResolvedValue({
-        newMigrations: [],
-        conflicts: [{ file: 'conflict.sql', developers: ['dev1', 'dev2'] }]
+    // Set up mocks for other functions that might be called
+    (diffStates as jest.Mock).mockResolvedValue(mockDifferences);
+
+    // Should fail because there's no state file to compare against
+    let caughtError: Error | null = null;
+    try {
+      await generateCommand(mockConfigPath, 'my_migration', { 
+        markApplied: false // Skip the loadLocalAppliedMigrations call
       });
-      
-      // Call our methods and simulate the CLI logic - handle null state
-      const state = await loadEnhancedState(mockConfigPath);
-      
-      // Since we've mocked loadEnhancedState to return mockEnhancedState, state should never be null
-      // But we need to check for TypeScript's sake
-      if (!state) {
-        throw new Error('State should not be null in test');
-      }
-      
-      const syncResult = await syncMigrations(mockConfigPath, '/fake/path/migrations', state);
-      
-      // If conflicts are found, output them and exit
-      if (syncResult.conflicts.length > 0) {
-        console.log(chalk.red('conflicts detected'));
-      }
-      
-      // Verify 
-      expect(syncMigrations).toHaveBeenCalled();
-      // The RED color should be used in console output for conflicts
-      expect(chalk.red).toHaveBeenCalledWith('conflicts detected');
-    });
+    } catch (error) {
+      caughtError = error as Error;
+    }
     
-    it('should warn about new migrations but allow continuing', async () => {
-      // Setup: New migrations are found during sync
-      (loadEnhancedState as jest.Mock).mockResolvedValue(mockEnhancedState);
-      (syncMigrations as jest.Mock).mockResolvedValue({
-        newMigrations: [{ name: 'new_migration.sql', timestamp: new Date().toISOString(), appliedChanges: [] }],
-        conflicts: []
-      });
-      
-      // Call methods to simulate CLI logic - handle null state
-      const state = await loadEnhancedState(mockConfigPath);
-      
-      // TypeScript check for null state
-      if (!state) {
-        throw new Error('State should not be null in test');
-      }
-      
-      const syncResult = await syncMigrations(mockConfigPath, '/fake/path/migrations', state);
-      
-      // If new migrations are found, warn the user
-      if (syncResult.newMigrations.length > 0) {
-        console.log(chalk.yellow('new migrations'));
-      }
-      
-      // Should have warned about new migrations
-      expect(chalk.yellow).toHaveBeenCalledWith('new migrations');
-    });
-    
-    it('should skip conflict check when --skip-conflict-check is used', async () => {
-      // This test would simulate the generate command with skip-conflict-check option
-      // For CLI command testing, we'd typically need to simulate the entire command execution
-      
-      // Here we're just checking that loadEnhancedState can be bypassed
-      // In the actual CLI, this happens when the --skip-conflict-check flag is provided
-      (loadEnhancedState as jest.Mock).mockResolvedValue(null);
-      
-      const result = await loadEnhancedState(mockConfigPath);
-      expect(result).toBeNull();
-      
-      // In this case, syncMigrations wouldn't be called at all
-      expect(syncMigrations).not.toHaveBeenCalled();
-    });
+    // Verify that we got an error
+    expect(caughtError).not.toBeNull();
+    if (caughtError) {
+      expect(caughtError.message).toMatch(/state/i);
+    }
   });
   
   // Test the colorized output for different file changes
