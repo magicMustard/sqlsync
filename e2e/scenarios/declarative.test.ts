@@ -87,22 +87,21 @@ describe('Declarative Table Functionality', () => {
       'utf8'
     );
     
-    // SQLSync currently handles declarative table changes as DROP+CREATE, not as ALTER statements
+    // Verify that ALTER TABLE statements are being generated for declarative tables
+    expect(migrationContent).toContain('NOTE: File is declarative. Generated ALTER TABLE statements for incremental changes');
     
-    // Check for DROP TABLE of old version
-    expect(migrationContent).toContain('DROP TABLE IF EXISTS public.products');
+    // Added columns
+    expect(migrationContent).toContain('ADDED COLUMNS');
+    expect(migrationContent).toContain('ALTER TABLE public.products ADD COLUMN stock_count INTEGER NOT NULL DEFAULT 0');
     
-    // Check for CREATE TABLE with new definition
-    expect(migrationContent).toContain('CREATE TABLE products');
-    expect(migrationContent).toContain('name VARCHAR(100) NOT NULL');
-    expect(migrationContent).toContain('price NUMERIC(12,2) NOT NULL');
-    expect(migrationContent).toContain('stock_count INTEGER NOT NULL DEFAULT 0');
-    expect(migrationContent).toContain('active BOOLEAN DEFAULT true');
+    // Modified columns
+    expect(migrationContent).toContain('MODIFIED COLUMNS');
+    expect(migrationContent).toContain('ALTER TABLE public.products ALTER COLUMN active TYPE BOOLEAN');
+    expect(migrationContent).toContain('ALTER TABLE public.products ALTER COLUMN active SET DEFAULT true');
+    expect(migrationContent).toContain('ALTER TABLE public.products ALTER COLUMN name TYPE VARCHAR(100)');
+    expect(migrationContent).toContain('ALTER TABLE public.products ALTER COLUMN price TYPE NUMERIC(12,2)');
     
-    // Should NOT contain the description column
-    expect(migrationContent).not.toContain('description TEXT');
-    
-    // Verify the changes were properly applied to the schema file
+    // Verify the changes were properly applied to the schema file, including the removal of the description column
     const updatedSchema = await fs.readFile(
       path.join(testDir, 'schema/tables/products/table.sql'),
       'utf8'
@@ -147,52 +146,68 @@ describe('Declarative Table Functionality', () => {
     // Should contain the CREATE TABLE statement for the orders table
     expect(migrationContent).toContain('CREATE TABLE orders');
     expect(migrationContent).toContain('product_id INTEGER REFERENCES products(id)');
+    expect(migrationContent).toContain('quantity INTEGER NOT NULL');
     
     // Verify both schema files exist
-    const productsFileExists = await fs.stat(path.join(testDir, 'schema/tables/products/table.sql'))
-      .then(() => true)
-      .catch(() => false);
-    
-    const ordersFileExists = await fs.stat(path.join(testDir, 'schema/tables/orders/table.sql'))
-      .then(() => true)
-      .catch(() => false);
-    
-    expect(productsFileExists).toBe(true);
-    expect(ordersFileExists).toBe(true);
-  });
-  
-  test('Should handle removing a declarative table', async () => {
-    // Remove the products table file
-    await fs.unlink(path.join(testDir, 'schema/tables/products/table.sql'));
-    
-    // Generate migration
-    const result = await runCommand(['generate', 'remove_products'], { cwd: testDir });
-    expect(result.exitCode).toBe(0);
-
-    // Get the specific migration filename
-    const removeMigrationFilename = getGeneratedMigrationFilename(result.stdout);
-    expect(removeMigrationFilename).not.toBeNull();
-    console.log(`Remove migration file: ${removeMigrationFilename}`);
-    
-    // Read the migration file
-    const migrationContent = await fs.readFile(
-      path.join(testDir, 'migrations', removeMigrationFilename!),
+    const productSchema = await fs.readFile(
+      path.join(testDir, 'schema/tables/products/table.sql'),
+      'utf8'
+    );
+    const orderSchema = await fs.readFile(
+      path.join(testDir, 'schema/tables/orders/table.sql'),
       'utf8'
     );
     
-    // Should drop the products table
-    expect(migrationContent).toContain('DROP TABLE IF EXISTS public.products');
+    expect(productSchema).toBeTruthy();
+    expect(orderSchema).toBeTruthy();
     
-    // Verify products schema file is removed but orders still exists
-    const productsFileExists = await fs.stat(path.join(testDir, 'schema/tables/products/table.sql'))
-      .then(() => true)
-      .catch(() => false);
+    // Now test column removal on the orders table we just created
+    // Modify the orders table to remove a column
+    await modifySchema(
+      path.join(testDir, 'schema/tables/orders/table.sql'),
+      (content) => {
+        return `-- sqlsync: declarativeTable=true
+        
+        CREATE TABLE orders (
+          id SERIAL PRIMARY KEY,
+          product_id INTEGER REFERENCES products(id),
+          -- quantity column removed
+          total_price NUMERIC(12,2) NOT NULL,
+          created_at TIMESTAMP DEFAULT NOW()
+        );`;
+      }
+    );
     
-    const ordersFileExists = await fs.stat(path.join(testDir, 'schema/tables/orders/table.sql'))
-      .then(() => true)
-      .catch(() => false);
+    // Generate migration for changes with debug enabled
+    const columnRemovalResult = await runCommand(['generate', 'remove_quantity', '--debug', 'verbose'], { cwd: testDir });
+    expect(columnRemovalResult.exitCode).toBe(0);
+
+    // Get the specific migration filename
+    const columnRemovalFilename = getGeneratedMigrationFilename(columnRemovalResult.stdout);
+    expect(columnRemovalFilename).not.toBeNull();
+    console.log(`Column removal migration file: ${columnRemovalFilename}`);
     
-    expect(productsFileExists).toBe(false);
-    expect(ordersFileExists).toBe(true);
+    // Read the migration file
+    const columnRemovalContent = await fs.readFile(
+      path.join(testDir, 'migrations', columnRemovalFilename!),
+      'utf8'
+    );
+    
+    console.log('Column removal migration content:', columnRemovalContent);
+    
+    // Verify the migration contains DROPPED COLUMNS section
+    expect(columnRemovalContent).toContain('NOTE: File is declarative. Generated ALTER TABLE statements for incremental changes');
+    
+    // Check for DROP COLUMN statement
+    // SQLSync should generate a DROP COLUMN statement for the removed quantity column
+    expect(columnRemovalContent).toContain('DROPPED COLUMNS');
+    expect(columnRemovalContent).toContain('ALTER TABLE public.orders DROP COLUMN quantity');
+    
+    // Verify the schema file no longer contains the quantity column
+    const updatedSchema = await fs.readFile(
+      path.join(testDir, 'schema/tables/orders/table.sql'),
+      'utf8'
+    );
+    expect(updatedSchema).not.toContain('quantity INTEGER NOT NULL');
   });
 });

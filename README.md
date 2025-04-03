@@ -7,7 +7,7 @@
 SQLSync simplifies database schema evolution by allowing a declarative approach to table management, reducing manual SQL migration writing and improving database change reliability.
 
 ## Notice
-Project is written in conjunction with AI. AI being the main developer. The end is nigh.... but also exciting. 
+Project is written in conjunction with AI. AI being the main developer.
 
 ## Purpose & Approach
 
@@ -37,7 +37,12 @@ CREATE TABLE users (
 );
 ```
 
-When you modify this CREATE TABLE statement, if it is not in the checksum, SQLSYnc will assume it's a new table. It will add the entire table to the migration file. Any subsequent changes to the structure of the CREATE TABLE statement, it assumes that you are adding, modifying or deleting columns. To that end, it will instead generate the appropriate `ALTER TABLE` statements.
+SQLSync handles declarative tables with incremental schema changes:
+- For new tables: The initial migration includes the full CREATE TABLE statement
+- For existing tables: Any changes to columns will generate the appropriate ALTER TABLE statements:
+  - Added columns → ALTER TABLE ADD COLUMN
+  - Modified columns → ALTER TABLE ALTER COLUMN
+  - Removed columns → ALTER TABLE DROP COLUMN
 
 ### 📝 Statement Splitting for Data Migrations
 
@@ -50,7 +55,24 @@ INSERT INTO categories (name) VALUES ('Books');
 INSERT INTO categories (name) VALUES ('Clothing');
 ```
 
-When you add new statements, only those new statements will be included in the migration.
+When you add new statements, only those new statements will be included in the migration. SQLSync will attempt to automatically detect the boundaries between statements, but for complex SQL (such as function definitions with embedded dollar quotes or complex syntax), you can explicitly mark statement boundaries:
+
+```sql
+-- sqlsync: splitStatements=true
+
+-- sqlsync: startStatement
+CREATE FUNCTION my_complex_function() RETURNS ...
+$$ 
+BEGIN
+  -- Complex code with multiple $$ or nested statements
+END;
+$$ LANGUAGE plpgsql;
+-- sqlsync: endStatement
+
+-- Next statement follows...
+```
+
+When statement splitting is disabled (the default behavior), SQLSync treats the entire file as a single unit, and any change to the file will cause the entire file to be included in the migration.
 
 ### 🗂️ Sophisticated Directory Structure Support
 
@@ -90,31 +112,33 @@ This configuration provides several key benefits:
 
 SQLSync supports multiple developers working simultaneously on the same database:
 
-- **Automatic Conflict Detection**: Detects when two developers modify the same SQL file
-- **Change Synchronization**: The `sync` command registers migrations from other team members
-- **Clear Color-Coded Output**: 
-  - 🟢 Green for added items
-  - 🟡 Yellow for modified items
-  - 🔴 Red for deleted items with warnings about manual DROP statements
+- **Independent Development**: Developers can work independently on different aspects of the database schema
+- **Migration Sharing**: Developers can share migrations with teammates by committing them to version control
+- **State Synchronization**: The `sync` command updates the local state file to recognize migrations from other team members
+- **Schema Comparison**: SQLSync detects when the current schema differs from the locally applied migrations
+- **Conflict Resolution**: When conflicts occur (e.g., different developers modifying the same table differently), SQLSync helps identify discrepancies and generates appropriate ALTER statements to resolve them
 
 ```bash
-# Synchronize with other developers' migrations
+# View current status compared to applied migrations
+sqlsync status
+
+# Recognize migrations from other developers
 sqlsync sync
 
-# Detect conflicts before generating migrations
-sqlsync generate add-user-field
-
-# View current status of SQL files and migrations
-sqlsync status
+# Generate new migrations after resolving conflicts
+sqlsync generate resolve-conflict
 ```
 
-When a SQL file is deleted, SQLSync highlights that DROP statements are not automatically generated and must be added manually to avoid accidental data loss - a crucial safety feature for team environments.
+SQLSync uses color-coded output to make changes clear:
+- 🟢 Green for added items
+- 🟡 Yellow for modified items
+- 🔴 Red for deleted items
 
 ### 🛡️ Safety-First Migrations
 
 - ✅ **Non-destructive changes** (CREATE, ADD, ALTER) are automatically included
 - ⚠️ **Destructive operations** require explicit user action
-- 🚨 Clear warnings highlight when manual DROP statements might be needed
+- 🚨 Clear warnings highlight when manual intervention might be needed
 
 ### 🔙 Migration Rollback Support
 
@@ -177,37 +201,51 @@ npm install -g sqlsync
 # sqlsync.yaml
 config:
   migrations:
-    outputDir: ./migrations
+    outputDir: migrations  # Relative to this config file's location
+
 sources:
   schema:
     order:
-      - schema/tables
-      - schema/views
-  data:
-    order:
-      - data/seed
+      - tables
+      - functions
+    tables:
+      order:
+        - users
+        - products
+      orderedSubdirectoryFileOrder:
+        - table.sql
+        - rls.sql
+        - indexes.sql
+    functions:
+      order:
+        - update_timestamp.sql  # Process specific files in this order
 ```
 
 2. Create your SQL files according to the directory structure defined in your configuration:
 
 ```
-/project               # Your project root
-├── sqlsync.yaml       # Configuration file (from step 1)
-├── migrations/        # Generated migration files (will be created)
-├── schema/
-│   └── tables/
-│       ├── 01_users.sql  # -- sqlsync: declarativeTable=true
-│       └── 02_posts.sql  # -- sqlsync: declarativeTable=true
-└── data/
-    └── seed/
-        └── 01_categories.sql  # -- sqlsync: splitStatements=true
+/project
+├── sqlsync.yaml
+├── migrations/
+└── schema/
+    ├── tables/
+    │   ├── users/
+    │   │   ├── table.sql        # -- sqlsync: declarativeTable=true
+    │   │   └── indexes.sql
+    │   └── products/
+    │       ├── table.sql        # -- sqlsync: declarativeTable=true  
+    │       └── data.sql         # -- sqlsync: splitStatements=true
+    └── functions/
+        └── user_functions.sql   # -- sqlsync: splitStatements=true
 ```
 
-3. Generate migrations:
+3. Generate migrations after making changes to your SQL files:
 
 ```bash
-sqlsync generate
+sqlsync generate add_user_table
 ```
+
+4. Review the generated migration in the `migrations` directory and apply it using your preferred database migration tool.
 
 ## Configuration Options
 
@@ -239,24 +277,28 @@ Add these directives as comments in your SQL files:
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `-- sqlsync: declarativeTable=true` | Treats the file as a declarative table definition. Requires exactly one CREATE TABLE statement per file. |
 | `-- sqlsync: splitStatements=true`  | Tracks each SQL statement in the file separately. Ideal for data files with multiple INSERT statements.  |
+| `-- sqlsync: startStatement`        | Explicitly marks the start of a statement when using statement splitting with complex SQL.               |
+| `-- sqlsync: endStatement`          | Explicitly marks the end of a statement when using statement splitting with complex SQL.                 |
 
 ## Commands
 
-| Command                                    | Description                                        |
-| ------------------------------------------ | -------------------------------------------------- |
-| `sqlsync init`                             | Creates a default configuration                    |
-| `sqlsync generate <migration-name>`        | Generates migration files based on changes         |
-| `sqlsync generate <name> --no-mark-applied` | Generate without marking as locally applied        |
-| `sqlsync status`                           | Shows current status of SQL files vs state         |
-| `sqlsync sync`                             | Synchronizes with migrations from other developers |
-| `sqlsync rollback <migration-name>`        | Rolls back to a specific migration (inclusive)     |
-| `sqlsync rollback --list`                  | Lists migrations available for rollback            |
-| `sqlsync rollback <name> --mark`           | Marks a migration to prevent accidental rollback   |
-| `sqlsync rollback <name> --unmark`         | Unmarks a previously protected migration           |
-| `sqlsync rollback <name> --delete-files`   | Deletes the rolled back migration files            |
-| `sqlsync rollback <name> --force`          | Skips confirmation prompts during rollback         |
-| `sqlsync migrate`                          | Runs migrations (if external tool configured)      |
-| `sqlsync --debug [level]`                  | Enables debug output (levels: basic, verbose)      |
+| Command                                  | Description                                        |
+| ---------------------------------------- | -------------------------------------------------- |
+| `sqlsync init`                           | Creates a default configuration                    |
+| `sqlsync generate <migration-name>`      | Generates migration files based on changes         |
+| `sqlsync generate <n> --no-mark-applied` | Generate without marking as locally applied        |
+| `sqlsync status`                         | Shows current status of SQL files vs state         |
+| `sqlsync sync`                           | Synchronizes with migrations from other developers |
+| `sqlsync rollback <migration-name>`      | Rolls back to a specific migration (inclusive)     |
+| `sqlsync rollback --list`                | Lists migrations available for rollback            |
+| `sqlsync rollback <n> --mark`            | Marks a migration to prevent accidental rollback   |
+| `sqlsync rollback <n> --unmark`          | Unmarks a previously protected migration           |
+| `sqlsync rollback <n> --delete-files`    | Deletes the rolled back migration files            |
+| `sqlsync rollback <n> --force`           | Skips confirmation prompts during rollback         |
+| `sqlsync mark-applied <migration-name>`  | Marks a migration as applied locally               |
+| `sqlsync mark-applied all`               | Marks all migrations as applied locally            |
+| `sqlsync migrate`                        | Runs migrations (if external tool configured)      |
+| `sqlsync --debug [level]`                | Enables debug output (levels: basic, verbose)      |
 
 ## Development
 

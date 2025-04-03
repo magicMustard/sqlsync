@@ -8,11 +8,20 @@ We've successfully enhanced the SQLSync project with improved rollback functiona
 
 - **Multi-developer Workflow Test**: Fixed in `collaboration-manager.test.ts` by properly tracking and accounting for migrations across multiple developers.
 - **Declarative Tables Validation**: Fixed in `sql-processor.ts` to correctly validate CREATE TABLE statements when used with other SQL statements.
+- **Schema Difference Handling**: Improved the schema-differ.ts logic to correctly generate proper ALTER TABLE statements for incremental changes to declarative tables, including column additions, modifications, and removals.
+  - Added columns → ALTER TABLE ADD COLUMN
+  - Modified columns → ALTER TABLE ALTER COLUMN
+  - Removed columns → ALTER TABLE DROP COLUMN
+- **Statement Splitting Enhancement**: Improved statement splitting capabilities with explicit marker support:
+  - Automatic boundary detection for simple SQL statements
+  - Explicit `-- sqlsync:startStatement` and `-- sqlsync:endStatement` markers for complex SQL with nested constructs
+  - Individual tracking of statements within the same file when enabled with `-- sqlsync: splitStatements=true`
 - **Error Message Format**: Updated in `split-statements.test.ts` to match the correct error message format from the implementation.
 - **Mock Implementation**: Fixed `chalk` mock in `generate.test.ts` to properly support chained method calls like `chalk.red.bold()`.
 - **Sync Command Tests**: Fixed issues in `sync.test.ts` by properly mocking the `detectPendingChanges` function and updating test assertions to match the actual behavior.
 - **Directory Traversal**: Fixed how the directory traverser handles nested directory structures with source names as physical directories.
 - **Path Handling**: Resolved inconsistencies between absolute and relative paths that caused false positives in change detection.
+- **Multi-Developer Workflow**: Enhanced synchronization between developers with better state tracking and conflict resolution.
 
 ### Enhanced Rollback Functionality (Complete)
 
@@ -115,8 +124,8 @@ sources:
 
 - `sql-processor.test.ts`: Tests SQL parsing and validation logic
 - `diff-engine.test.ts`: Tests change detection between states
-- `declarative-tables.test.ts`: Tests CREATE TABLE validation and ALTER detection
-- `split-statements.test.ts`: Tests statement-level tracking
+- `declarative-tables.test.ts`: Tests CREATE TABLE validation and proper ALTER TABLE statement generation for column additions, modifications, and removals
+- `split-statements.test.ts`: Tests statement-level tracking with automatic boundary detection and explicit statement markers
 - `state-manager.test.ts`: Tests state persistence and reconciliation
 
 ### Command Tests
@@ -124,3 +133,9 @@ sources:
 - `generate.test.ts`: Tests migration generation with color-coded output
 - `sync.test.ts`: Tests synchronization between multiple developers
 - `rollback.test.ts`: Tests rollback functionality including migration protection and file deletion
+
+### E2E Tests
+
+- `evolution.test.ts`: Tests end-to-end schema evolution with declarative tables
+- `statement-splitting.test.ts`: Tests end-to-end statement splitting functionality
+- `collaboration.test.ts`: Tests multi-developer workflows and conflict resolution

@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { setupTestEnvironment, setupSqlSyncEnvironment } from '../helpers/setup';
 import { createTestDirectory, modifySchema } from '../helpers/file-utils';
-import { runCommand, initializeSqlSync } from '../helpers/commands';
+import { runCommand } from '../helpers/commands';
 
 // Single combined test to make testing more efficient and reliable
 describe('Statement Splitting Functionality', () => {
@@ -39,9 +39,6 @@ describe('Statement Splitting Functionality', () => {
         $$ LANGUAGE SQL;`
       }
     ]);
-    
-    // Initialize sqlsync in test directory - Removed: 'init' command doesn't exist
-    // await initializeSqlSync(testDir);
     
     // 1. Generate initial migration with both functions
     console.log('Generate initial migration...');

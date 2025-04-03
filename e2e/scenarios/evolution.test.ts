@@ -40,63 +40,43 @@ describe('Schema Evolution', () => {
   });
   
   test('Should handle adding a column to a declarative table', async () => {
-    // Modify schema to add a new column
+    // Modify the schema to add a column
     await modifySchema(
-      path.join(testDir, 'schema/tables/users/table.sql'), 
+      path.join(testDir, 'schema/tables/users/table.sql'),
       (content) => {
         return content.replace(
           'email TEXT NOT NULL UNIQUE',
-          'email TEXT NOT NULL UNIQUE,\n  created_at TIMESTAMP DEFAULT NOW()'
+          'email TEXT NOT NULL UNIQUE,\n          created_at TIMESTAMP DEFAULT NOW()'
         );
       }
     );
     
-    // Generate migration for changes
-    const result = await runCommand(['generate', 'add_created_at'], { cwd: testDir });
-    console.log('Generate result for adding column:', result);
+    // Generate migration
+    const addResult = await runCommand(['generate', 'add_created_at'], { cwd: testDir });
+    console.log('Generate result for adding column:', addResult);
     
-    // Verify migration contains the updated table definition
-    const migrationDir = path.join(testDir, 'migrations');
-    const migrationFiles = await fs.readdir(migrationDir);
+    // Check that migration file was created
+    const migrationFiles = await fs.readdir(path.join(testDir, 'migrations'));
+    const addMigrationFile = migrationFiles.find(f => f.includes('add_created_at'));
     
-    // Get files with their full stats to sort by creation time 
-    const fileStats = await Promise.all(
-      migrationFiles.map(async (file) => {
-        const stats = await fs.stat(path.join(migrationDir, file));
-        return { 
-          name: file, 
-          stats,
-          path: path.join(migrationDir, file)
-        };
-      })
-    );
+    expect(addMigrationFile).toBeTruthy();
     
-    // Sort by creation time, newest first
-    fileStats.sort((a, b) => b.stats.mtime.getTime() - a.stats.mtime.getTime());
-    
-    // Get the newest migration file
-    const latestMigration = fileStats[0].name;
-    console.log('Latest migration file:', latestMigration);
-    
-    // Verify the migration file
+    // Read migration content
     const migrationContent = await fs.readFile(
-      path.join(migrationDir, latestMigration),
+      path.join(testDir, 'migrations', addMigrationFile!),
       'utf8'
     );
     
-    console.log('Migration content excerpt:', migrationContent.substring(0, 200));
-    
-    // In SQLSync's approach, it recreates the table rather than using ALTER
-    // So we check for the CREATE TABLE statement with the new column
-    expect(migrationContent).toContain('CREATE TABLE users');
-    expect(migrationContent).toContain('created_at TIMESTAMP');
-    expect(migrationContent).toContain('DEFAULT NOW()');
+    // For declarative tables, SQLSync uses ALTER TABLE statements to add columns
+    expect(migrationContent).toContain('NOTE: File is declarative. Generated ALTER TABLE statements for incremental changes');
+    expect(migrationContent).toContain('ADDED COLUMNS');
+    expect(migrationContent).toContain('ALTER TABLE public.users ADD COLUMN created_at TIMESTAMP DEFAULT NOW()');
   });
   
   test('Should handle changing a column type in a declarative table', async () => {
-    // Modify schema to change a column type
+    // Modify the schema to change column type
     await modifySchema(
-      path.join(testDir, 'schema/tables/users/table.sql'), 
+      path.join(testDir, 'schema/tables/users/table.sql'),
       (content) => {
         return content.replace(
           'username TEXT NOT NULL',
@@ -105,87 +85,57 @@ describe('Schema Evolution', () => {
       }
     );
     
-    // Generate migration for changes
-    const result = await runCommand(['generate', 'modify_username'], { cwd: testDir });
-    console.log('Generate result for modifying column:', result);
+    // Generate migration
+    const modifyResult = await runCommand(['generate', 'modify_username'], { cwd: testDir });
     
-    // Verify migration contains updated table definition
-    const migrationDir = path.join(testDir, 'migrations');
-    const migrationFiles = await fs.readdir(migrationDir);
+    // Check that migration file was created
+    const migrationFiles = await fs.readdir(path.join(testDir, 'migrations'));
+    const modifyMigrationFile = migrationFiles.find(f => f.includes('modify_username'));
     
-    // Get files with their full stats to sort by creation time 
-    const fileStats = await Promise.all(
-      migrationFiles.map(async (file) => {
-        const stats = await fs.stat(path.join(migrationDir, file));
-        return { 
-          name: file, 
-          stats,
-          path: path.join(migrationDir, file)
-        };
-      })
-    );
+    expect(modifyMigrationFile).toBeTruthy();
     
-    // Sort by creation time, newest first
-    fileStats.sort((a, b) => b.stats.mtime.getTime() - a.stats.mtime.getTime());
-    
-    // Get the newest migration file
-    const latestMigration = fileStats[0].name;
-    console.log('Latest migration file after column type change:', latestMigration);
-    
+    // Read migration content
     const migrationContent = await fs.readFile(
-      path.join(migrationDir, latestMigration),
+      path.join(testDir, 'migrations', modifyMigrationFile!),
       'utf8'
     );
     
-    // Check that the migration has the new column type
-    expect(migrationContent).toContain('CREATE TABLE users');
-    expect(migrationContent).toContain('username VARCHAR(50) NOT NULL');
+    // Check that the migration has the column type change
+    expect(migrationContent).toContain('NOTE: File is declarative. Generated ALTER TABLE statements for incremental changes');
+    expect(migrationContent).toContain('MODIFIED COLUMNS');
+    expect(migrationContent).toContain('ALTER TABLE public.users ALTER COLUMN username TYPE VARCHAR(50)');
   });
   
   test('Should handle removing a column from a declarative table', async () => {
-    // Modify schema to remove a column
+    // Modify the schema to remove a column
     await modifySchema(
-      path.join(testDir, 'schema/tables/users/table.sql'), 
+      path.join(testDir, 'schema/tables/users/table.sql'),
       (content) => {
-        // Create a new schema without the created_at column
-        return content.replace(/,\s*created_at TIMESTAMP DEFAULT NOW\(\)/g, '');
+        return content.replace(
+          ',\n          created_at TIMESTAMP DEFAULT NOW()',
+          ''
+        );
       }
     );
     
-    // Generate migration for changes
-    const result = await runCommand(['generate', 'remove_created_at'], { cwd: testDir });
-    console.log('Generate result for removing column:', result);
+    // Generate migration
+    const removeResult = await runCommand(['generate', 'remove_created_at'], { cwd: testDir });
     
-    // Verify migration contains the updated table definition
-    const migrationDir = path.join(testDir, 'migrations');
-    const migrationFiles = await fs.readdir(migrationDir);
+    // Check that migration file was created
+    const migrationFiles = await fs.readdir(path.join(testDir, 'migrations'));
+    const removeMigrationFile = migrationFiles.find(f => f.includes('remove_created_at'));
     
-    // Get files with their full stats to sort by creation time 
-    const fileStats = await Promise.all(
-      migrationFiles.map(async (file) => {
-        const stats = await fs.stat(path.join(migrationDir, file));
-        return { 
-          name: file, 
-          stats,
-          path: path.join(migrationDir, file)
-        };
-      })
-    );
+    expect(removeMigrationFile).toBeTruthy();
     
-    // Sort by creation time, newest first
-    fileStats.sort((a, b) => b.stats.mtime.getTime() - a.stats.mtime.getTime());
-    
-    // Get the newest migration file
-    const latestMigration = fileStats[0].name;
-    console.log('Latest migration file after column removal:', latestMigration);
-    
+    // Read migration content
     const migrationContent = await fs.readFile(
-      path.join(migrationDir, latestMigration),
+      path.join(testDir, 'migrations', removeMigrationFile!),
       'utf8'
     );
     
-    // Check that the migration no longer has the removed column
-    expect(migrationContent).toContain('CREATE TABLE users');
-    expect(migrationContent).not.toContain('created_at TIMESTAMP');
+    // Check that the migration drops the removed column
+    expect(migrationContent).toContain('NOTE: File is declarative. Generated ALTER TABLE statements for incremental changes');
+    expect(migrationContent).toContain('DROPPED COLUMNS');
+    expect(migrationContent).toContain('ALTER TABLE public.users DROP COLUMN created_at');
   });
 });
