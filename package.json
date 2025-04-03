@@ -1,6 +1,6 @@
 {
 	"name": "@magic-mustard/sqlsync",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "SQLSync simplifies database schema evolution by allowing a declarative approach to table management",
 	"main": "dist/index.js",
 	"bin": {
@@ -18,7 +18,15 @@
 		"format": "prettier --write \"**/*.{ts,js,json,md}\"",
 		"prepublishOnly": "pnpm run build"
 	},
-	"keywords": ["sqlsync", "postgresql", "database", "migrations", "declarative", "schema", "sync"],
+	"keywords": [
+		"sqlsync",
+		"postgresql",
+		"database",
+		"migrations",
+		"declarative",
+		"schema",
+		"sync"
+	],
 	"author": "Tim | magicMustard",
 	"license": "MIT",
 	"repository": {
