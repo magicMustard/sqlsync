@@ -21,6 +21,7 @@ export interface ProcessedSqlFile {
 	statements: ProcessedStatement[];
 	rawFileChecksum: string; // Checksum of the raw file content *before* parsing/normalization
 	rawFileContent: string; // The raw, unmodified content of the file
+	normalizedChecksum: string; // Checksum of normalized SQL content (comments and whitespace removed)
 
 	// Flags parsed from file comments (e.g., -- sqlsync: declarativeTable=true)
 	declarativeTable?: boolean; // Default based on implementation needs (e.g., false or true)

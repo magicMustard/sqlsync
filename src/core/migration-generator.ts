@@ -345,6 +345,21 @@ export function generateMigrationContent(
             }
           });
         }
+      } else if (change.current && isProcessedSqlFile(change.current)) {
+        const currentRawContent = change.current.rawFileContent;
+        if (currentRawContent) {
+          const content = currentRawContent.trim();
+          const checksum = getHash(content);
+          
+          // Add to migrationState
+          migrationState.statements.push({ checksum, filePath: change.filePath });
+          
+          // Include the complete file content in the migration
+          lines.push(`-- NOTE: File content has changed. Including complete content:`);
+          lines.push(wrapStatementWithChecksum(content, checksum));
+        } else {
+          lines.push(`-- WARNING: Could not retrieve current content for modified file ${change.filePath}`);
+        }
       }
     });
     lines.push('\n-- >>> END MODIFIED FILES <<<');
@@ -419,7 +434,44 @@ export function generateMigrationContent(
     lines.push('\n-- >>> END DELETED FILES <<<');
   }
 
-  return { content: lines.join('\n') + '\n', state: migrationState };
+  const migrationContent = lines.join('\n') + '\n';
+  
+  // Validate if the migration has actual SQL content
+  if (!migrationHasActualContent(migrationContent)) {
+    logger.info(chalk.dim('No actual SQL changes detected. Skipping migration generation.'));
+    return { content: '', state: migrationState };
+  }
+
+  return { content: migrationContent, state: migrationState };
+}
+
+/**
+ * Validates if a migration has actual SQL content, not just comments.
+ * 
+ * @param content The migration content to validate
+ * @returns True if the migration contains actual SQL statements, false otherwise
+ */
+export function migrationHasActualContent(content: string): boolean {
+  // If there's no content at all, there's definitely no SQL
+  if (!content.trim()) {
+    return false;
+  }
+
+  // Remove all comments (lines starting with --)
+  const contentWithoutComments = content
+    .split('\n')
+    .filter(line => !line.trim().startsWith('--') && line.trim() !== '')
+    .join('\n')
+    .trim();
+
+  // Remove migration marker comments
+  const contentWithoutMarkers = contentWithoutComments
+    .replace(/-- sqlsync: startStatement:[a-f0-9]+/g, '')
+    .replace(/-- sqlsync: endStatement:[a-f0-9]+/g, '')
+    .trim();
+
+  // If after removing all comments and markers we have content, it contains SQL
+  return contentWithoutMarkers.length > 0;
 }
 
 /**

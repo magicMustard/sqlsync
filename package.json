@@ -1,6 +1,6 @@
 {
 	"name": "@magic-mustard/sqlsync",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "SQLSync simplifies database schema evolution by allowing a declarative approach to table management",
 	"main": "dist/index.js",
 	"bin": {

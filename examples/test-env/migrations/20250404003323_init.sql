@@ -1,22 +1,22 @@
--- SQLSync Migration: test_generate
--- Generated At: 2025-04-03T09:38:03.788Z
+-- SQLSync Migration: init
+-- Generated At: 2025-04-04T00:33:23.449Z
 -- Based on detected changes between states.
 
 -- >>> ADDED FILES <<<
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/schemas.sql
+-- Added File: schema/schemas.sql
 -- sqlsync: startStatement:5a9f9b700ad4ec30007ef7fd22f5a0aa712c784ebaab7f7fe4d213ea931678a7
 -- Create schemas
 CREATE SCHEMA IF NOT EXISTS functions;
 -- sqlsync: endStatement:5a9f9b700ad4ec30007ef7fd22f5a0aa712c784ebaab7f7fe4d213ea931678a7
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/extensions.sql
+-- Added File: schema/extensions.sql
 -- sqlsync: startStatement:bba1ea53de622dcb59b9fbf91037b596387a330ea2731bdbb8602ba9a102b84b
 -- Enable extensions
 CREATE EXTENSION IF NOT EXISTS "pg_jsonschema" WITH SCHEMA "extensions";
 -- sqlsync: endStatement:bba1ea53de622dcb59b9fbf91037b596387a330ea2731bdbb8602ba9a102b84b
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/roles/roles.sql
+-- Added File: schema/roles/roles.sql
 -- sqlsync: startStatement:8eddee9d87b1cf8bdbf3ecf156fd2410b4d16e3d1296e132de8a72f8d3cc9c5d
 -- Create roles
 CREATE ROLE jackson;
@@ -24,7 +24,7 @@ CREATE ROLE jackson;
 GRANT jackson TO authenticated;
 -- sqlsync: endStatement:8eddee9d87b1cf8bdbf3ecf156fd2410b4d16e3d1296e132de8a72f8d3cc9c5d
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/functions/uuid_v7.sql
+-- Added File: schema/functions/uuid_v7.sql
 -- sqlsync: startStatement:8796d4e0a21e94723ae6902283676e2274ac8b8ed306475ac64f295f8297f550
 CREATE OR REPLACE FUNCTION functions.uuid_v7() RETURNS uuid AS $$
 DECLARE
@@ -66,7 +66,7 @@ BEGIN
 END $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 -- sqlsync: endStatement:8796d4e0a21e94723ae6902283676e2274ac8b8ed306475ac64f295f8297f550
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/functions/update_updated_at_column.sql
+-- Added File: schema/functions/update_updated_at_column.sql
 -- sqlsync: startStatement:7d2123f8548413b979f3219d345c712cddc263196c0321b92b7218978f00ff6d
 -- Create a trigger function to update the `updated_at` timestamp
 -- Function: update_updated_at_column()
@@ -81,7 +81,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 -- sqlsync: endStatement:7d2123f8548413b979f3219d345c712cddc263196c0321b92b7218978f00ff6d
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/table.sql
+-- Added File: schema/tables/system_config/table.sql
 -- sqlsync: startStatement:c051436735f0907f6013d188c12f74b0869dc390b542f27b612f454fd84c3bf4
 -- sqlsync: declarativeTable:true
 -- Table: system_config
@@ -98,12 +98,12 @@ CREATE TABLE public.system_config (
 );
 -- sqlsync: endStatement:c051436735f0907f6013d188c12f74b0869dc390b542f27b612f454fd84c3bf4
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/rls.sql
+-- Added File: schema/tables/system_config/rls.sql
 -- sqlsync: startStatement:a925737aa2b0863f8ac9c17c260fdc838df84389bbcb686915a8cb580ad44960
 ALTER TABLE public.system_config ENABLE ROW LEVEL SECURITY;
 -- sqlsync: endStatement:a925737aa2b0863f8ac9c17c260fdc838df84389bbcb686915a8cb580ad44960
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/system_config/grants.sql
+-- Added File: schema/tables/system_config/grants.sql
 -- sqlsync: startStatement:96af15a0940e1689a924cb85b5658137e71944d377960818edb232e01c919775
 REVOKE ALL ON public.system_config FROM PUBLIC, anon, authenticated, authenticator, jackson;
 
@@ -114,9 +114,10 @@ GRANT
     ON public.system_config TO jackson;
 -- sqlsync: endStatement:96af15a0940e1689a924cb85b5658137e71944d377960818edb232e01c919775
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/table.sql
--- sqlsync: startStatement:4c315ff6a55b9f34f25419d973566e1c2d3b55bfea1cf05b912f7dd5e134db0f
--- sqlsync: declarativeTable:true
+-- Added File: schema/tables/tenants/table.sql
+-- NOTE: File is declarative. Using raw content.
+-- sqlsync: startStatement:27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53
+-- sqlsync: declarativeTable=true
 -- Create tenants table
 CREATE TABLE public.tenants (
     id UUID NOT NULL PRIMARY KEY DEFAULT functions.uuid_v7(),
@@ -124,17 +125,19 @@ CREATE TABLE public.tenants (
     phone TEXT DEFAULT NULL,
     email TEXT DEFAULT NULL,
 	setup_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    description TEXT DEFAULT NULL, 
+    active BOOLEAN DEFAULT TRUE NOT NULL, 
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
--- sqlsync: endStatement:4c315ff6a55b9f34f25419d973566e1c2d3b55bfea1cf05b912f7dd5e134db0f
+-- sqlsync: endStatement:27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/rls.sql
+-- Added File: schema/tables/tenants/rls.sql
 -- sqlsync: startStatement:4e8f0a412cbe0d859aa67263e44caa79df18d93fe64e5d7bb4e60404a84dfc7e
 ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;
 -- sqlsync: endStatement:4e8f0a412cbe0d859aa67263e44caa79df18d93fe64e5d7bb4e60404a84dfc7e
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/grants.sql
+-- Added File: schema/tables/tenants/grants.sql
 -- sqlsync: startStatement:fc9bc4534e70422b4a6f591018cf9523c0780a9bc91a030eb161012084ad2673
 -- Revoke default `PUBLIC` access
 REVOKE ALL ON public.tenants FROM PUBLIC, anon, authenticated, authenticator, jackson;
@@ -147,7 +150,7 @@ GRANT
     ON public.tenants TO jackson;
 -- sqlsync: endStatement:fc9bc4534e70422b4a6f591018cf9523c0780a9bc91a030eb161012084ad2673
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/triggers.sql
+-- Added File: schema/tables/tenants/triggers.sql
 -- sqlsync: startStatement:c44cb7c23fc6daf84d4d2d5921df092e61256dfcf0d68de15db410a7f9ea81dd
 -- Drop existing triggers if they exist
 DROP TRIGGER IF EXISTS set_updated_at ON public.tenants;
@@ -160,7 +163,7 @@ CREATE TRIGGER set_updated_at
 	EXECUTE FUNCTION functions.update_updated_at_column();
 -- sqlsync: endStatement:c44cb7c23fc6daf84d4d2d5921df092e61256dfcf0d68de15db410a7f9ea81dd
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/tenants/indexes.sql
+-- Added File: schema/tables/tenants/indexes.sql
 -- sqlsync: startStatement:3e33d06174d1e92ae7d7a668a36070d37c7a421a49abe9c9ee39dad4c28e3516
 DROP INDEX IF EXISTS tenants_unique_name;
 DROP INDEX IF EXISTS tenants_unique_email;
@@ -180,13 +183,13 @@ CREATE UNIQUE INDEX tenants_unique_phone
 	WHERE phone IS NOT NULL;
 -- sqlsync: endStatement:3e33d06174d1e92ae7d7a668a36070d37c7a421a49abe9c9ee39dad4c28e3516
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/types.sql
+-- Added File: schema/tables/profiles/types.sql
 -- sqlsync: startStatement:efba5a0178c94cc39d05de47a59d464875bcc222090e62a46d4e1ac9335efb30
 -- Create role_type enum
 CREATE TYPE public.role_type AS ENUM ('jackson');
 -- sqlsync: endStatement:efba5a0178c94cc39d05de47a59d464875bcc222090e62a46d4e1ac9335efb30
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/table.sql
+-- Added File: schema/tables/profiles/table.sql
 -- sqlsync: startStatement:fa82731fa3d5ba0327548ca9b65c69a03afbb7c292f03cdd0217358e384cad2d
 -- sqlsync: declarativeTable:true
 -- Create profiles table
@@ -204,12 +207,12 @@ CREATE TABLE public.profiles (
 );
 -- sqlsync: endStatement:fa82731fa3d5ba0327548ca9b65c69a03afbb7c292f03cdd0217358e384cad2d
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/rls.sql
+-- Added File: schema/tables/profiles/rls.sql
 -- sqlsync: startStatement:d0d86f22ca5d9cc0f9a4dc22cd600f4b60ebdcf7bf7dc7d49e266ce4f4cc7953
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 -- sqlsync: endStatement:d0d86f22ca5d9cc0f9a4dc22cd600f4b60ebdcf7bf7dc7d49e266ce4f4cc7953
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/checks.sql
+-- Added File: schema/tables/profiles/checks.sql
 -- sqlsync: startStatement:1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549
 ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_operating_hours_check;
 
@@ -241,7 +244,7 @@ ALTER TABLE public.profiles
 	);
 -- sqlsync: endStatement:1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/grants.sql
+-- Added File: schema/tables/profiles/grants.sql
 -- sqlsync: startStatement:86c2c4133545000e5641178ab1d2f721041aa3c572b08985b901ee93589ec88b
 -- Revoke default `PUBLIC` access
 REVOKE ALL ON public.profiles FROM PUBLIC, anon, authenticated, authenticator, jackson;
@@ -256,14 +259,14 @@ GRANT
 	ON public.profiles TO jackson;
 -- sqlsync: endStatement:86c2c4133545000e5641178ab1d2f721041aa3c572b08985b901ee93589ec88b
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/tables/profiles/indexes.sql
+-- Added File: schema/tables/profiles/indexes.sql
 -- sqlsync: startStatement:0469103f4e2ec3ab9933b0c81d6fcc9a97202860294119b234eebb176ae18b22
 DROP INDEX IF EXISTS profiles_phone_unique_idx;
 
 CREATE INDEX profiles_phone_unique_idx ON public.profiles (phone) WHERE phone IS NOT NULL;
 -- sqlsync: endStatement:0469103f4e2ec3ab9933b0c81d6fcc9a97202860294119b234eebb176ae18b22
 
--- Added File: /home/tim/Development/sqlsync/examples/test-env/schema/seeds/system_config.sql
+-- Added File: schema/seeds/system_config.sql
 -- sqlsync: startStatement:bc68413dbbe03f2ab81fadf448b15f44c528fc4fa4e215ce7670bb7e2064ce08
 INSERT INTO public.system_config (
     key,
@@ -274,67 +277,3 @@ DO UPDATE SET value = EXCLUDED.value;
 -- sqlsync: endStatement:bc68413dbbe03f2ab81fadf448b15f44c528fc4fa4e215ce7670bb7e2064ce08
 
 -- >>> END ADDED FILES <<<
-
--- >>> DELETED FILES <<<
-
--- Deleted File: schema/schemas.sql
--- WARNING: No previous state found for deleted file schema/schemas.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/extensions.sql
--- WARNING: No previous state found for deleted file schema/extensions.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/roles/roles.sql
--- WARNING: No previous state found for deleted file schema/roles/roles.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/functions/uuid_v7.sql
--- WARNING: No previous state found for deleted file schema/functions/uuid_v7.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/functions/update_updated_at_column.sql
--- WARNING: No previous state found for deleted file schema/functions/update_updated_at_column.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/system_config/table.sql
--- WARNING: No previous state found for deleted file schema/tables/system_config/table.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/system_config/rls.sql
--- WARNING: No previous state found for deleted file schema/tables/system_config/rls.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/system_config/grants.sql
--- WARNING: No previous state found for deleted file schema/tables/system_config/grants.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/tenants/table.sql
--- WARNING: No previous state found for deleted file schema/tables/tenants/table.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/tenants/rls.sql
--- WARNING: No previous state found for deleted file schema/tables/tenants/rls.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/tenants/grants.sql
--- WARNING: No previous state found for deleted file schema/tables/tenants/grants.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/tenants/triggers.sql
--- WARNING: No previous state found for deleted file schema/tables/tenants/triggers.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/tenants/indexes.sql
--- WARNING: No previous state found for deleted file schema/tables/tenants/indexes.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/profiles/types.sql
--- WARNING: No previous state found for deleted file schema/tables/profiles/types.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/profiles/table.sql
--- WARNING: No previous state found for deleted file schema/tables/profiles/table.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/profiles/rls.sql
--- WARNING: No previous state found for deleted file schema/tables/profiles/rls.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/profiles/checks.sql
--- WARNING: No previous state found for deleted file schema/tables/profiles/checks.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/profiles/grants.sql
--- WARNING: No previous state found for deleted file schema/tables/profiles/grants.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/tables/profiles/indexes.sql
--- WARNING: No previous state found for deleted file schema/tables/profiles/indexes.sql. Cannot generate specific DROP statements or comment out content.
-
--- Deleted File: schema/seeds/system_config.sql
--- WARNING: No previous state found for deleted file schema/seeds/system_config.sql. Cannot generate specific DROP statements or comment out content.
-
--- >>> END DELETED FILES <<<

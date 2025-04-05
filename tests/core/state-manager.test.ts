@@ -55,7 +55,8 @@ describe('State Manager', () => {
             }
           ],
           rawFileContent: sqlContent,
-          rawFileChecksum: `file-checksum-${fileName}`
+          rawFileChecksum: `file-checksum-${fileName}`,
+          normalizedChecksum: `normalized-${fileName}`
         }
       ]
     };
@@ -87,7 +88,8 @@ describe('State Manager', () => {
       },
       currentDeclarativeTables: {},
       currentFileChecksums: {
-        'table1.sql': 'checksum-table1.sql'
+        'table1.sql': 'checksum-table1.sql',
+        'table2.sql': 'checksum-table2.sql'
       }
     };
   }
@@ -247,7 +249,7 @@ describe('State Manager', () => {
         ],
         declarativeTables: {},
         createdAt: '2025-01-02T00:00:00.000Z',
-        fileChecksum: '845c864ed02723ab9053b2751e4d01ecf6739a08935db48bc8cf41572be2e2e4' // Add the expected fileChecksum
+        fileChecksum: '845c864ed02723ab9053b2751e4d01ecf6739a08935db48bc8cf41572be2e2e4'
       };
       
       // Add migration to state

@@ -1,3 +1,2 @@
-20250403040508_initial_schema.sql
-20250403093803_test_generate.sql
-20250403094045_test_declarative.sql
+20250404003323_init.sql
+20250404003402_added_subscription_id_to_tenants.sql

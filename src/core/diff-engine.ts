@@ -106,7 +106,7 @@ export function diffStates(
 		debug(`Checking file: ${filePath}`, 'basic');
 		debug(`  Previous declarative state: ${previousDeclarativeState ? 'Yes' : 'No'}`, 'verbose');
 		debug(`  Previous raw checksum: ${previousRawChecksum ? previousRawChecksum.substring(0, 8) + '...' : 'None'}`, 'verbose');
-		debug(`  Current checksum: ${currentFile.rawFileChecksum ? currentFile.rawFileChecksum.substring(0, 8) + '...' : 'None'}`, 'verbose');
+		debug(`  Current checksum: ${currentFile.normalizedChecksum ? currentFile.normalizedChecksum.substring(0, 8) + '...' : 'None'}`, 'verbose');
 		
 		// This file has been seen in the current run
 		currentFiles.add(filePath);
@@ -149,11 +149,11 @@ export function diffStates(
 					debug(`  Result: MODIFIED (changed from declarative to non-declarative)`, 'basic');
 					changeDetected = true;
 					previousStateForChange = previousDeclarativeState;
-				} else if (previousRawChecksum !== currentFile.rawFileChecksum) {
-					// Non-declarative file content changed (based on raw checksum)
+				} else if (previousRawChecksum !== currentFile.normalizedChecksum) {
+					// Non-declarative file content changed (based on normalized checksum)
 					debug(`  Result: MODIFIED (non-declarative content changed)`, 'basic');
 					debug(`    Previous checksum: ${previousRawChecksum.substring(0, 8)}...`, 'verbose');
-					debug(`    Current checksum: ${currentFile.rawFileChecksum.substring(0, 8)}...`, 'verbose');
+					debug(`    Current checksum: ${currentFile.normalizedChecksum.substring(0, 8)}...`, 'verbose');
 					changeDetected = true;
 					// We don't have the previous ProcessedSqlFile structure here easily,
 					// just the checksum. Mark as modified based on checksum diff.
@@ -205,6 +205,27 @@ export function diffStates(
 	debug(`  Deleted: ${fileChanges.filter(fc => fc.type === 'deleted').length}`, 'verbose');
 
 	return { fileChanges };
+}
+
+/**
+ * Compares two SQL files by their normalized content to determine if actual SQL content 
+ * has changed, ignoring comments and whitespace differences.
+ * 
+ * @param file1 First ProcessedSqlFile to compare
+ * @param file2 Second ProcessedSqlFile to compare
+ * @returns True if the actual SQL content is different, false if only comments or whitespace changed
+ */
+export function compareFilesByNormalizedContent(
+  file1: ProcessedSqlFile,
+  file2: ProcessedSqlFile
+): boolean {
+  // If either file lacks a normalized checksum, fall back to comparing raw checksums
+  if (!file1.normalizedChecksum || !file2.normalizedChecksum) {
+    return file1.rawFileChecksum !== file2.rawFileChecksum;
+  }
+  
+  // Compare using normalized checksums to ignore comments and whitespace
+  return file1.normalizedChecksum !== file2.normalizedChecksum;
 }
 
 /**

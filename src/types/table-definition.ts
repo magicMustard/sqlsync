@@ -11,8 +11,13 @@ export interface ColumnDefinition {
 	isPrimaryKey: boolean;
 	isUnique: boolean;
 	// Add other constraints or attributes as needed, e.g., check constraints, foreign key references (might be complex)
-	// foreignKey?: { referencedTable: string; referencedColumn: string; onDelete?: string; onUpdate?: string };
-	// checkConstraint?: string;
+	foreignKey?: {
+		referencedTable: string;
+		referencedColumn: string;
+		onDelete?: string; // e.g., 'CASCADE', 'SET NULL', 'SET DEFAULT', 'RESTRICT', 'NO ACTION'
+		onUpdate?: string; // e.g., 'CASCADE', 'SET NULL', 'SET DEFAULT', 'RESTRICT', 'NO ACTION'
+	};
+	checkConstraint?: string; // e.g., 'a > 0', 'b IN (1, 2, 3)'
 }
 
 /**

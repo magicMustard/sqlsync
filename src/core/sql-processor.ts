@@ -245,6 +245,29 @@ const parseDirectives = (content: string): SqlSyncDirectiveFlags => {
 };
 
 /**
+ * Normalizes SQL content by removing comments and standardizing whitespace.
+ * This helps ensure that only meaningful SQL changes trigger new migrations.
+ * 
+ * @param content The SQL content to normalize
+ * @returns Normalized SQL content
+ */
+export function normalizeSQL(content: string): string {
+  if (!content) return '';
+  
+  // Remove comments
+  let normalized = content
+    .replace(/--.*$/gm, '') // Remove single-line comments
+    .replace(/\/\*[\s\S]*?\*\//gm, ''); // Remove multi-line comments
+  
+  // Normalize whitespace: multiple whitespace becomes single space
+  normalized = normalized
+    .replace(/\s+/g, ' ')
+    .trim();
+  
+  return normalized;
+}
+
+/**
  * Detects if a SQL string contains a CREATE TABLE statement
  * 
  * @param sql SQL string to check
@@ -275,14 +298,11 @@ export async function processSqlFile(
 	relativePath?: string
 ): Promise<ProcessedSqlFile> {
 	const fileName = path.basename(filePath);
-	const relPath = relativePath || fileName;
-	
-	// Initialize output structure with defaults
-	let fileContent: string = '';
-	let fileChecksum: string = '';
-	let error: string | undefined;
+	let fileContent = '';
+	let fileChecksum = '';
+	let normalizedChecksum = ''; // Initialize the normalized checksum
 	let statements: ProcessedStatement[] = [];
-	let tableDefinition: TableDefinition | null = null;
+	let parsedTable: TableDefinition | null = null;
 	let directives: SqlSyncDirectiveFlags = {
 		declarativeTable: false,
 		splitStatements: false,
@@ -292,9 +312,12 @@ export async function processSqlFile(
 		// Read the file content
 		fileContent = await fs.readFile(filePath, 'utf-8');
 		
-		// Calculate raw file checksum
-		// (For raw file content, we don't remove comments)
+		// Calculate checksum for raw content
 		fileChecksum = getHash(fileContent);
+		
+		// Calculate normalized checksum for change detection - immune to comments and whitespace
+		const normalizedContent = normalizeSQL(fileContent);
+		normalizedChecksum = getHash(normalizedContent);
 		
 		// Parse SQL Sync directives
 		directives = parseDirectives(fileContent);
@@ -343,12 +366,12 @@ export async function processSqlFile(
 			
 			// Try to parse the table definition
 			try {
-				tableDefinition = PostgresTableParser.parseCreateTable(fileContent);
-				if (!tableDefinition) {
+				parsedTable = PostgresTableParser.parseCreateTable(fileContent);
+				if (!parsedTable) {
 					logger.debug(`Failed to extract table definition with custom parser: ${filePath}`);
 					throw new Error(`Failed to extract table definition from ${filePath}`);
 				}
-				logger.debug(`Extracted table definition for ${tableDefinition.tableName}`);
+				logger.debug(`Extracted table definition for ${parsedTable.tableName}`);
 			} catch (err: any) {
 				throw new Error(`Failed to parse CREATE TABLE statement in ${filePath}: ${err.message || String(err)}`);
 			}
@@ -434,10 +457,10 @@ export async function processSqlFile(
 		
 	} catch (err: any) {
 		// Catch errors during processing and return them immediately
-		error = err.message || String(err);
+		const error = err.message || String(err);
 		// Return an object conforming to ProcessedSqlFile on error
 		return {
-			filePath: relPath, // Use relative path (or filename)
+			filePath: relativePath || fileName, // Use relative path (or filename)
 			fileName,
 			rawFileContent: fileContent, // Keep raw content even on error
 			rawFileChecksum: fileChecksum, // Keep checksum even on error
@@ -447,18 +470,20 @@ export async function processSqlFile(
 			// Include directive flags even if an error occurred
 			declarativeTable: directives.declarativeTable,
 			splitStatements: directives.splitStatements,
+			normalizedChecksum: normalizedChecksum, // Use explicit assignment instead of shorthand
 		};
 	}
 
 	// If no error occurred, return the successfully processed data
 	// Conforming to ProcessedSqlFile interface
 	return {
-		filePath: relPath, // Use relative path (or filename)
+		filePath: relativePath || fileName, // Use relative path (or filename)
 		fileName,
 		rawFileContent: fileContent,
 		rawFileChecksum: fileChecksum,
+		normalizedChecksum: normalizedChecksum, // Use explicit assignment instead of shorthand
 		statements,
-		tableDefinition, // Populated if applicable
+		tableDefinition: parsedTable, // Populated if applicable
 		declarativeTable: directives.declarativeTable,
 		splitStatements: directives.splitStatements,
 		error: undefined, // Explicitly undefined on success

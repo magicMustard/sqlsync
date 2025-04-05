@@ -357,7 +357,9 @@ function columnsEqualExceptName(col1: ColumnDefinition, col2: ColumnDefinition):
 		col1.isNullable === col2.isNullable &&
 		col1.isPrimaryKey === col2.isPrimaryKey &&
 		col1.isUnique === col2.isUnique &&
-		col1.defaultValue === col2.defaultValue
+		col1.defaultValue === col2.defaultValue &&
+		isEqualForeignKey(col1.foreignKey, col2.foreignKey) &&
+		col1.checkConstraint === col2.checkConstraint
 	);
 }
 
@@ -371,7 +373,28 @@ function columnsEqual(col1: ColumnDefinition, col2: ColumnDefinition): boolean {
 		col1.isNullable === col2.isNullable &&
 		col1.isPrimaryKey === col2.isPrimaryKey &&
 		col1.isUnique === col2.isUnique &&
-		col1.defaultValue === col2.defaultValue
+		col1.defaultValue === col2.defaultValue &&
+		isEqualForeignKey(col1.foreignKey, col2.foreignKey) &&
+		col1.checkConstraint === col2.checkConstraint
+	);
+}
+
+/**
+ * Compare two foreign key definitions for equality
+ */
+function isEqualForeignKey(fk1?: ColumnDefinition['foreignKey'], fk2?: ColumnDefinition['foreignKey']): boolean {
+	// Both undefined or null - considered equal
+	if (!fk1 && !fk2) return true;
+	
+	// One defined but the other isn't - not equal
+	if ((!fk1 && fk2) || (fk1 && !fk2)) return false;
+	
+	// Both defined - check all properties
+	return (
+		fk1!.referencedTable === fk2!.referencedTable &&
+		fk1!.referencedColumn === fk2!.referencedColumn &&
+		(fk1!.onDelete || null) === (fk2!.onDelete || null) &&
+		(fk1!.onUpdate || null) === (fk2!.onUpdate || null)
 	);
 }
 
@@ -398,6 +421,20 @@ function generateAddColumnSQL(
 
 	if (column.isUnique && !column.isPrimaryKey) {
 		sql += ' UNIQUE';
+	}
+
+	if (column.foreignKey) {
+		sql += ` REFERENCES ${column.foreignKey.referencedTable}(${column.foreignKey.referencedColumn})`;
+		if (column.foreignKey.onDelete) {
+			sql += ` ON DELETE ${column.foreignKey.onDelete}`;
+		}
+		if (column.foreignKey.onUpdate) {
+			sql += ` ON UPDATE ${column.foreignKey.onUpdate}`;
+		}
+	}
+
+	if (column.checkConstraint) {
+		sql += ` CHECK (${column.checkConstraint})`;
 	}
 
 	return sql + ';';
@@ -447,9 +484,90 @@ function generateModifyColumnSQL(
 		}
 	}
 
-	// UNIQUE constraint can't be easily altered, typically we'd need to drop and recreate
-	// same with PRIMARY KEY
-	// This would require more complex logic
+	// UNIQUE constraint
+	if (oldColumn.isUnique !== newColumn.isUnique) {
+		if (newColumn.isUnique) {
+			alterStatements.push(
+				`ALTER TABLE ${tableName} ADD CONSTRAINT ${tableName}_${newColumn.name}_unique UNIQUE (${newColumn.name});`
+			);
+		} else {
+			alterStatements.push(
+				`ALTER TABLE ${tableName} DROP CONSTRAINT IF EXISTS ${tableName}_${oldColumn.name}_unique;`
+			);
+		}
+	}
+
+	// PRIMARY KEY constraint
+	if (oldColumn.isPrimaryKey !== newColumn.isPrimaryKey) {
+		if (newColumn.isPrimaryKey) {
+			alterStatements.push(
+				`ALTER TABLE ${tableName} ADD CONSTRAINT ${tableName}_${newColumn.name}_pkey PRIMARY KEY (${newColumn.name});`
+			);
+		} else {
+			alterStatements.push(
+				`ALTER TABLE ${tableName} DROP CONSTRAINT IF EXISTS ${tableName}_${oldColumn.name}_pkey;`
+			);
+		}
+	}
+
+	// FOREIGN KEY constraint
+	const oldFk = oldColumn.foreignKey;
+	const newFk = newColumn.foreignKey;
+	
+	// Determine if foreign key changed
+	const foreignKeyChanged = 
+		(!oldFk && newFk) || 
+		(oldFk && !newFk) || 
+		(oldFk && newFk && (
+			oldFk.referencedTable !== newFk.referencedTable ||
+			oldFk.referencedColumn !== newFk.referencedColumn ||
+			oldFk.onDelete !== newFk.onDelete ||
+			oldFk.onUpdate !== newFk.onUpdate
+		));
+		
+	if (foreignKeyChanged) {
+		// Drop old foreign key constraint if it existed
+		if (oldFk) {
+			alterStatements.push(
+				`ALTER TABLE ${tableName} DROP CONSTRAINT IF EXISTS ${tableName}_${oldColumn.name}_fk;`
+			);
+		}
+		
+		// Add new foreign key constraint if it exists
+		if (newFk) {
+			let fkSql = `ALTER TABLE ${tableName} ADD CONSTRAINT ${tableName}_${newColumn.name}_fk ` +
+				`FOREIGN KEY (${newColumn.name}) ` +
+				`REFERENCES ${newFk.referencedTable}(${newFk.referencedColumn})`;
+				
+			if (newFk.onDelete) {
+				fkSql += ` ON DELETE ${newFk.onDelete}`;
+			}
+			
+			if (newFk.onUpdate) {
+				fkSql += ` ON UPDATE ${newFk.onUpdate}`;
+			}
+			
+			alterStatements.push(fkSql + ';');
+		}
+	}
+
+	// CHECK constraint
+	const oldCheck = oldColumn.checkConstraint;
+	const newCheck = newColumn.checkConstraint;
+	
+	if (oldCheck !== newCheck) {
+		if (oldCheck) {
+			alterStatements.push(
+				`ALTER TABLE ${tableName} DROP CONSTRAINT IF EXISTS ${tableName}_${oldColumn.name}_check;`
+			);
+		}
+		
+		if (newCheck) {
+			alterStatements.push(
+				`ALTER TABLE ${tableName} ADD CONSTRAINT ${tableName}_${newColumn.name}_check CHECK (${newCheck});`
+			);
+		}
+	}
 
 	return alterStatements.join('\n');
 }

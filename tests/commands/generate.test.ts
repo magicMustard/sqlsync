@@ -94,26 +94,28 @@ describe('Generate Command', () => {
         {
           filePath: 'table1.sql',
           fileName: 'table1.sql',
+          rawFileContent: 'CREATE TABLE table1 (id INT, name VARCHAR(100))',
+          rawFileChecksum: 'raw-checksum2',
+          normalizedChecksum: 'normalized-checksum2', // Add normalized checksum
           statements: [
             {
               checksum: 'checksum2',
               normalizedStatement: 'CREATE TABLE table1 (id INT, name VARCHAR(100))',
             }
-          ],
-          rawFileChecksum: 'raw-checksum2',
-          rawFileContent: 'CREATE TABLE table1 (id INT, name VARCHAR(100))'
+          ]
         },
         {
           filePath: 'table2.sql',
           fileName: 'table2.sql',
+          rawFileContent: 'CREATE TABLE table2 (id INT)',
+          rawFileChecksum: 'raw-checksum3',
+          normalizedChecksum: 'normalized-checksum3', // Add normalized checksum
           statements: [
             {
               checksum: 'checksum3',
               normalizedStatement: 'CREATE TABLE table2 (id INT)',
             }
-          ],
-          rawFileChecksum: 'raw-checksum3',
-          rawFileContent: 'CREATE TABLE table2 (id INT)'
+          ]
         }
       ]
     }
@@ -128,14 +130,15 @@ describe('Generate Command', () => {
         previous: {
           filePath: 'table1.sql',
           fileName: 'table1.sql',
+          rawFileContent: 'CREATE TABLE table1 (id INT)',
+          rawFileChecksum: 'raw-checksum1',
+          normalizedChecksum: 'normalized-checksum1', // Add normalized checksum
           statements: [
             {
               checksum: 'checksum1',
               normalizedStatement: 'CREATE TABLE table1 (id INT)',
             }
-          ],
-          rawFileChecksum: 'raw-checksum1',
-          rawFileContent: 'CREATE TABLE table1 (id INT)'
+          ]
         },
         current: mockCurrentSections[0].items[0] as ProcessedSqlFile,
         statementChanges: [
@@ -304,14 +307,15 @@ describe('Generate Command', () => {
             previous: {
               filePath: 'table3.sql',
               fileName: 'table3.sql',
+              rawFileContent: 'CREATE TABLE table3 (id INT)',
+              rawFileChecksum: 'raw-checksum4',
+              normalizedChecksum: 'normalized-checksum4', // Add normalized checksum
               statements: [
                 {
                   checksum: 'checksum4',
                   normalizedStatement: 'CREATE TABLE table3 (id INT)',
                 }
-              ],
-              rawFileChecksum: 'raw-checksum4',
-              rawFileContent: 'CREATE TABLE table3 (id INT)'
+              ]
             }
           }
         ]
