@@ -70,7 +70,6 @@ program
 	.description(
 		'Generate a new migration file based on changes detected in SQL definitions'
 	)
-	.option(configOption, configDescription)
 	.option(
 		'--no-mark-applied', 
 		'Do not mark the generated migration as locally applied'
@@ -81,240 +80,19 @@ program
 	)
 	.action(async (migrationName, options) => {
 		console.log(`Generating migration: ${migrationName}`);
-
-		// --- 1. Load Configuration ---
-		const configPath = resolveConfigPath(options.config || 'sqlsync.yaml');
-		if (!fs.existsSync(configPath)) {
-			console.error(`Config file not found: ${configPath}`);
-			process.exit(1);
-		}
-
-		// Load the current state from the file (or get initial state)
-		const sqlSyncState = loadState(configPath);
-		// Log based on whether history exists, indicating if it's a truly new state
-		if (sqlSyncState.migrationHistory.length > 0) {
-			console.log('SQLSync state loaded successfully.');
-		} else {
-			console.log('No previous migration history found. Starting fresh.');
-		}
-
-		// --- 3. Process the SQL Files ---
-		console.log('\nProcessing SQL files...');
-		const currentSections = await traverseDirectories(loadConfig(configPath), path.dirname(configPath));
-		if (currentSections) {
-			console.log('SQL files processed successfully.');
-		}
-
-		// --- Extract Current File Checksums (Needed for State Update) ---
-		const currentFileChecksumsMap: { [filePath: string]: string } = {};
-		currentSections.forEach((section) => {
-			section.items.forEach((item) => {
-				if ('files' in item) {
-					// ProcessedDirectory
-					item.files.forEach((file) => {
-						currentFileChecksumsMap[file.filePath] = file.rawFileChecksum;
-					});
-				} else {
-					// ProcessedSqlFile directly under section
-					currentFileChecksumsMap[item.filePath] = item.rawFileChecksum;
-				}
-			});
-		});
-
-		// --- 4. Calculate Differences ---
-		console.log('\nCalculating differences...');
-		// Pass the whole state object; diffStates internal logic will need update
-		const difference = diffStates(sqlSyncState, currentSections);
-
-		// Display differences in a colorized, user-friendly format
-		console.log('\n--- Changes Detected ---');
-		
-		// Group changes by type (added, modified, removed)
-		const addedFiles = difference.fileChanges.filter(change => change.type === 'added');
-		const modifiedFiles = difference.fileChanges.filter(change => change.type === 'modified');
-		const deletedFiles = difference.fileChanges.filter(change => change.type === 'deleted');
-		
-		// Handle added files/statements (GREEN)
-		if (addedFiles.length > 0) {
-			console.log(chalk.green(`\n✓ ADDED (${addedFiles.length}):`));
-			addedFiles.forEach((change) => {
-				console.log(chalk.green(`  + ${change.filePath}`));
-				if (change.current && isProcessedSqlFile(change.current)) {
-					change.current.statements.forEach((stmt) => {
-						const normalizedStmt = stmt.normalizedStatement || '';
-						const truncatedStmt = normalizedStmt.length > 60 
-							? normalizedStmt.substring(0, 60) + '...' 
-							: normalizedStmt;
-						console.log(chalk.green(`    + ${stmt.checksum.substring(0, 8)}: ${truncatedStmt}`));
-					});
-				}
-			});
-		}
-		
-		// Handle modified files/statements (YELLOW)
-		if (modifiedFiles.length > 0) {
-			console.log(chalk.yellow(`\n↻ MODIFIED (${modifiedFiles.length}):`));
-			modifiedFiles.forEach((change) => {
-				console.log(chalk.yellow(`  ~ ${change.filePath}`));
-				// Display statement-level changes
-				// --- Type Guard for change.previous/current.statements ---
-				if (
-					change.statementChanges &&
-					change.previous && 'statements' in change.previous && // Check previous has statements
-					change.current && 'statements' in change.current // Check current has statements
-				) {
-					// We know change.previous/current are ProcessedSqlFile here
-					const prevStmtsMap = new Map(change.previous.statements.map((s) => [s.checksum, s]));
-					const currStmtsMap = new Map(change.current.statements.map((s) => [s.checksum, s]));
-					
-					change.statementChanges.forEach((stmtChange) => {
-						if (stmtChange.type === 'added') {
-							const normalizedStmt = stmtChange.current?.normalizedStatement || '';
-							const truncatedStmt = normalizedStmt.length > 60 
-								? normalizedStmt.substring(0, 60) + '...' 
-								: normalizedStmt;
-							console.log(chalk.green(`    + ${stmtChange.current!.checksum.substring(0, 8)}: ${truncatedStmt}`));
-						} else if (stmtChange.type === 'deleted') {
-							const normalizedStmt = stmtChange.previous?.normalizedStatement || '';
-							const truncatedStmt = normalizedStmt.length > 60 
-								? normalizedStmt.substring(0, 60) + '...' 
-								: normalizedStmt;
-							console.log(chalk.red(`    - ${stmtChange.previous!.checksum.substring(0, 8)}: ${truncatedStmt}`));
-						} else if (stmtChange.type === 'modified') {
-							const normalizedStmt = stmtChange.current?.normalizedStatement || '';
-							const truncatedStmt = normalizedStmt.length > 60 
-								? normalizedStmt.substring(0, 60) + '...' 
-								: normalizedStmt;
-							console.log(chalk.yellow(`    ~ ${stmtChange.current!.checksum.substring(0, 8)}: ${truncatedStmt}`));
-						}
-					});
-				}
-			});
-		}
-		
-		// Handle removed files/statements (RED)
-		if (deletedFiles.length > 0) {
-			console.log(chalk.red(`\n✗ REMOVED (${deletedFiles.length}):`));
-			console.log(chalk.red.bold('  NOTE: DROP statements are NOT automatically generated and must be added manually!'));
-			deletedFiles.forEach((change) => {
-				console.log(chalk.red(`  - ${change.filePath}`));
-				// If it was a declarative table, warn about manual DROP
-				// --- Type Guard for change.previous.declarativeTable ---
-				if (change.previous && 'declarativeTable' in change.previous) {
-					if (change.previous.declarativeTable) {
-						console.log(
-							chalk.yellow.bold(
-								`    ⚠ WARNING: Declarative table deleted. Manual DROP required if applied.`
-							)
-						);
-					}
-				}
-				// Display statements from the deleted file
-				// --- Type Guard for change.previous.statements ---
-				if (change.previous && 'statements' in change.previous && change.previous.statements.length > 0) {
-					change.previous.statements.forEach((stmt) => {
-						const normalizedStmt = stmt.normalizedStatement || '';
-						const truncatedStmt = normalizedStmt.length > 60 
-							? normalizedStmt.substring(0, 60) + '...' 
-							: normalizedStmt;
-						console.log(chalk.red(`    - ${stmt.checksum.substring(0, 8)}: ${truncatedStmt}`));
-					});
-				}
-			});
-		}
-		
-		if (difference.fileChanges.length === 0) {
-			console.log(chalk.green('No changes detected.'));
-			return;
-		}
-		
-		console.log('\n-------------------------');
-
-		// --- 5. Generate Migration ---
-		console.log('\nGenerating migration content...');
-		// Call the refactored generator function
-		const { content, state: migrationState } = generateMigrationContent(
-			difference,
-			migrationName
-		);
-
-		// Check if content is empty (no changes)
-		if (!content || !content.trim().endsWith(';')) {
-			// Check if it's just comments or empty
-			const meaningfulContent = content
-				.split('\n')
-				.filter(line => !line.trim().startsWith('--') && line.trim() !== '')
-				.join('\n');
-			
-			if (!meaningfulContent) {
-				console.log(chalk.yellow('Migration generated, but contains no executable SQL changes.'));
-				// Decide if we should still save the file and update state - for now, let's skip
-				console.log('Skipping file creation and state update.');
-				return; // Exit the action if no meaningful content
-			}
-		}
-
-		// Extract content for file writing
-		const migrationFileContent = content;
-
-		// Generate filename (e.g., YYYYMMDDHHMMSS_migration-name.sql)
-		const timestamp = generateTimestamp();
-		const sanitizedName = migrationName.toLowerCase().replace(/[^a-z0-9_]/g, '_');
-		const filename = `${timestamp}_${sanitizedName}.sql`;
-
-		// Check if migrations directory is specified in config
-		const migrationsDir = loadConfig(configPath).config?.migrations?.outputDir;
-		if (!migrationsDir) {
-			console.error('Error: Migration output directory is not specified in configuration.');
-			process.exit(1);
-		}
-		
-		const outputPath = path.resolve(path.dirname(configPath), migrationsDir, filename); // Resolve relative to baseDir
-
-		console.log(`- Generating content for: ${filename}`);
+		console.log(`[DEBUG cli.ts] Global program.opts().config: ${program.opts().config}`);
 		try {
-			// Ensure output directory exists
-			const outputDirAbs = path.resolve(path.dirname(configPath), migrationsDir);
-			if (!fs.existsSync(outputDirAbs)) {
-				fs.mkdirSync(outputDirAbs, { recursive: true });
-				console.log(`- Created output directory: ${outputDirAbs}`);
-			}
+			// Resolve config path using the helper function
+			const configPath = resolveConfigPath(program.opts().config);
 
-			fs.writeFileSync(outputPath, migrationFileContent); // <-- Use extracted content
-			console.log(`- Migration file generated successfully: ${outputPath}`);
-		} catch (error) {
-			console.error(
-				`Error writing migration file ${outputPath}:`,
-				error instanceof Error ? error.message : String(error)
-			);
-			process.exit(1); // Exit if migration file couldn't be written
-		}
-
-		// Create file first, then add it to migration state
-		try {
-			// Generate migration content based on differences
+			// Prepare options for the command function
 			const generateOptions = {
-				markApplied: !options['no-mark-applied']
+				markApplied: !options.noMarkApplied, // Note the commander option is --no-mark-applied
+				force: options.force || false
 			};
-			
-			// Call the command implementation with options
-			await generateCommand(configPath, migrationName, generateOptions);
 
-			// Mark the migration as applied if not explicitly disabled
-			if (!options['no-mark-applied']) {
-				// Use local applied migrations functionality from state-manager 
-				// instead of enhanced state for consistency
-				const appliedMigrations = loadLocalAppliedMigrations(configPath);
-				if (!appliedMigrations.includes(filename)) {
-					appliedMigrations.push(filename);
-					try {
-						saveLocalAppliedMigrations(configPath, appliedMigrations);
-						console.log(`Marked migration as applied locally: ${filename}`);
-					} catch (error) {
-						console.error(`Error marking migration as applied: ${error instanceof Error ? error.message : String(error)}`);
-					}
-				}
-			}
+			// Call the core command function from generate.ts
+			await generateCommand(configPath, migrationName, generateOptions);
 
 			console.log('\nGenerate command finished.');
 		} catch (error) {

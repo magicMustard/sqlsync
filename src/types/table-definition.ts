@@ -10,7 +10,6 @@ export interface ColumnDefinition {
 	defaultValue: string | number | null; // Store the default value expression/literal
 	isPrimaryKey: boolean;
 	isUnique: boolean;
-	// Add other constraints or attributes as needed, e.g., check constraints, foreign key references (might be complex)
 	foreignKey?: {
 		referencedTable: string;
 		referencedColumn: string;
@@ -21,20 +20,10 @@ export interface ColumnDefinition {
 }
 
 /**
- * Represents table-level constraints (could expand later if needed).
- * For now, mainly focusing on column-level definitions extracted.
- */
-// export interface TableConstraint {
-//   type: 'PRIMARY KEY' | 'UNIQUE' | 'FOREIGN KEY' | 'CHECK';
-//   columns: string[];
-//   // ... other properties depending on type
-// }
-
-/**
  * Represents the parsed structure of a CREATE TABLE statement.
  */
 export interface TableDefinition {
+	schema: string;
 	tableName: string;
 	columns: ColumnDefinition[];
-	// tableConstraints?: TableConstraint[]; // Optional: Add table-level constraints later
 }

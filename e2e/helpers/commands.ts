@@ -52,3 +52,38 @@ export async function runCommand(args: string[], options: { cwd: string }): Prom
 export async function initializeSqlSync(testDir: string): Promise<CommandResult> {
   return runCommand(['init'], { cwd: testDir });
 }
+
+/**
+ * Helper function to extract the generated migration filename from the stdout of a command
+ * 
+ * @param stdout The stdout of the command
+ * @returns The basename of the generated migration file, or null if not found.
+ */
+export function getGeneratedMigrationFilename(stdout: string): string | null {
+  // Strip ANSI color codes first
+  const cleanStdout = stdout.replace(/\u001b\[(?:[0-9]{1,3}(?:;[0-9]{1,3})*)?[m|K]/g, '');
+
+  const lines = cleanStdout.split('\n'); // Split cleaned stdout into individual lines
+
+  for (const line of lines) {
+    // Try the primary regex on each line - more specific regex
+    const regex = /\[INFO\] Migration created: (\d{14}_[\w-]+?\.sql)/;
+    console.log(`[DEBUG_HELPER] Checking line: '${line}'`); // Log the line being checked
+    const match = line.match(regex);
+    console.log(`[DEBUG_HELPER] Match result: ${JSON.stringify(match)}`); // Log the match result
+    if (match && match[1]) {
+      return match[1]; // Return the filename as soon as found
+    }
+
+    // Fallback for the old format on each line (optional, but kept for robustness)
+    const oldMatch = line.match(/Migration file generated successfully: (.+)/);
+    if (oldMatch && oldMatch[1]) {
+      console.warn('Matched old migration filename format on line:', line);
+      return path.basename(oldMatch[1]);
+    }
+  }
+
+  // If no match was found after checking all lines
+  console.error(`Could not find migration filename in stdout: ${stdout}`);
+  return null;
+}

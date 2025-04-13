@@ -167,20 +167,21 @@ async function syncMigrations(
     const migrationContent = fs.readFileSync(migrationPath, 'utf8');
     
     // Create simple migration state
-    const migrationState = {
+    const migrationState: MigrationState = {
       statements: [],
       declarativeTables: {},
+      sourceFileChecksums: {}, // Add the required property
       createdAt: new Date().toISOString(),
       fileChecksum: ''
     };
     
     // Update state with this migration
-    saveMigrationToState(configPath, migrationFile, migrationContent, migrationState);
+    saveMigrationToState(configPath, migrationFile, migrationContent, migrationState, state.currentFileChecksums, state.currentDeclarativeTables);
     
     // Add to result
     result.newMigrations.push({
       name: migrationFile,
-      createdAt: migrationState.createdAt
+      createdAt: migrationState.createdAt || new Date().toISOString() // Ensure createdAt is never undefined
     });
     
     logger.info(`Synced migration: ${migrationFile}`);

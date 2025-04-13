@@ -3,18 +3,13 @@ import { TableDefinition, ColumnDefinition } from '@/types';
 import { logger } from '@/utils/logger';
 
 /**
- * Represents an ALTER TABLE operation to be generated
+ * Define possible ALTER TABLE operations
  */
-export interface AlterTableOperation {
-	type: 'ADD_COLUMN' | 'DROP_COLUMN' | 'MODIFY_COLUMN' | 'RENAME_COLUMN';
-	tableName: string;
-	columnName: string;
-	newColumnName?: string; // Only for RENAME operations
-	columnDefinition?: ColumnDefinition; // For ADD and MODIFY operations
-	sql: string; // The actual SQL to execute
-	requiresConfirmation?: boolean; // Flag to indicate if the operation needs user confirmation
-	confidenceScore?: number; // A score between 0-1 for rename detection confidence
-}
+export type AlterTableOperation = 
+  | { type: 'ADD_COLUMN'; tableName: string; columnName: string; columnDefinition: ColumnDefinition; sql: string; } 
+  | { type: 'MODIFY_COLUMN'; tableName: string; columnName: string; columnDefinition: ColumnDefinition; sql: string; } 
+  | { type: 'DROP_COLUMN'; tableName: string; columnName: string; sql: string; } 
+  | { type: 'RENAME_COLUMN'; tableName: string; columnName: string; newColumnName: string; sql: string; requiresConfirmation?: boolean; confidenceScore?: number; };
 
 /**
  * Interface for column rename candidates

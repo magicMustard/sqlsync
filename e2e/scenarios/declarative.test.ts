@@ -2,17 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { setupTestEnvironment, setupSqlSyncEnvironment } from '../helpers/setup';
 import { createTestDirectory, modifySchema } from '../helpers/file-utils';
-import { runCommand } from '../helpers/commands';
-
-// Helper function to extract migration filename from stdout
-function getGeneratedMigrationFilename(stdout: string): string | null {
-  const match = stdout.match(/Migration file generated successfully: (.+)/);
-  if (match && match[1]) {
-    return path.basename(match[1].trim());
-  }
-  console.error('Could not find migration filename in stdout:', stdout);
-  return null;
-}
+import { runCommand, getGeneratedMigrationFilename } from '../helpers/commands';
 
 describe('Declarative Table Functionality', () => {
   let testDir: string;

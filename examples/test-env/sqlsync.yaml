@@ -21,6 +21,7 @@ schema:
     order:
       - uuid_v7.sql
       - update_updated_at_column.sql
+      - new_test_function.sql
       - company_enforce_tenant_id.sql
       - reseller_enforce_tenant_id.sql
       - get_vault_secrets.sql

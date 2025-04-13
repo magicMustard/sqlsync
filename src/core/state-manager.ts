@@ -5,12 +5,14 @@ import {
 	SQLSYNC_STATE_VERSION,
 	SQLSYNC_STATE_FILENAME,
 	SQLSYNC_LOCAL_APPLIED_FILENAME,
-	MigrationState
+	MigrationState,
+	DeclarativeTableState,
 } from '../types/state';
-import { ProcessedSection } from '../types/processed-sql';
+import { ProcessedSection, ProcessedSqlFile, ProcessedDirectory } from '../types/processed-sql';
 import { getHash } from '../utils/crypto';
 import { toRelativePath, toAbsolutePath } from '../utils/path-utils';
 import { debug } from '../utils/debug';
+import { normalizeSQL } from './sql-processor';
 
 /**
  * Gets the absolute path for the state file based on the config file path.
@@ -32,7 +34,8 @@ function createInitialState(): SqlSyncState {
 		migrationHistory: [],
 		migrations: {},
 		currentDeclarativeTables: {},
-		currentFileChecksums: {}, // Initialize the new field
+		currentFileChecksums: {},
+		currentSplitStatementFiles: {},
 	};
 }
 
@@ -88,28 +91,28 @@ export function loadState(configFilePath: string): SqlSyncState {
 			state.version = SQLSYNC_STATE_VERSION;
 		}
 
-		// Normalize paths in the loaded state
-		state.migrationHistory = state.migrationHistory.map((migration) =>
-			toRelativePath(configFilePath, migration)
-		);
-		state.migrations = Object.fromEntries(
-			Object.entries(state.migrations).map(([key, value]) => [
-				toRelativePath(configFilePath, key),
-				value,
-			])
-		);
-		state.currentDeclarativeTables = Object.fromEntries(
-			Object.entries(state.currentDeclarativeTables).map(([key, value]) => [
-				toRelativePath(configFilePath, key),
-				value,
-			])
-		);
-		state.currentFileChecksums = Object.fromEntries(
-			Object.entries(state.currentFileChecksums).map(([key, value]) => [
-				toRelativePath(configFilePath, key),
-				value,
-			])
-		);
+		// Normalize paths in the loaded state - REMOVED: Paths are already stored relative
+		// state.migrationHistory = state.migrationHistory.map((migration) =>
+		// 	toRelativePath(configFilePath, migration)
+		// );
+		// state.migrations = Object.fromEntries(
+		// 	Object.entries(state.migrations).map(([key, value]) => [
+		// 		toRelativePath(configFilePath, key),
+		// 		value,
+		// 	])
+		// );
+		// state.currentDeclarativeTables = Object.fromEntries(
+		// 	Object.entries(state.currentDeclarativeTables).map(([key, value]) => [
+		// 		toRelativePath(configFilePath, key),
+		// 		value,
+		// 	])
+		// );
+		// state.currentFileChecksums = Object.fromEntries(
+		// 	Object.entries(state.currentFileChecksums).map(([key, value]) => [
+		// 		toRelativePath(configFilePath, key),
+		// 		value,
+		// 	])
+		// );
 
 		console.log(`Loaded state (v${state.version}) from ${stateFilePath}`);
 		return state;
@@ -126,54 +129,99 @@ export function loadState(configFilePath: string): SqlSyncState {
 /**
  * Saves the current unified state to the state file.
  * @param configFilePath Absolute path to the sqlsync.yaml config file.
- * @param state The state to save.
- * @throws Error if there's a problem saving the state.
+ * @param newState An object containing the state components to update/save.
  */
-export function saveState(configFilePath: string, state: SqlSyncState): void {
-	try {
-		const stateFilePath = getStateFilePath(configFilePath);
-		
-		// Deep clone the state to avoid modifying the original
-		const stateToSave = structuredClone(state);
-		
-		// Ensure all paths in the state are relative to the config directory
-		stateToSave.migrationHistory = stateToSave.migrationHistory.map((migration) =>
-			ensureRelativePath(configFilePath, migration)
-		);
-		
-		stateToSave.migrations = Object.fromEntries(
-			Object.entries(stateToSave.migrations).map(([key, value]) => [
-				ensureRelativePath(configFilePath, key),
-				value,
-			])
-		);
-		
-		stateToSave.currentDeclarativeTables = Object.fromEntries(
-			Object.entries(stateToSave.currentDeclarativeTables).map(([key, value]) => [
-				ensureRelativePath(configFilePath, key),
-				value,
-			])
-		);
-		
-		stateToSave.currentFileChecksums = Object.fromEntries(
-			Object.entries(stateToSave.currentFileChecksums).map(([key, value]) => [
-				ensureRelativePath(configFilePath, key),
-				value,
-			])
-		);
-		
-		// Create directory if it doesn't exist
-		const stateFileDir = path.dirname(stateFilePath);
-		if (!fs.existsSync(stateFileDir)) {
-			fs.mkdirSync(stateFileDir, { recursive: true });
-		}
-		
-		// Write the state file
-		fs.writeFileSync(stateFilePath, JSON.stringify(stateToSave, null, 2));
-		console.log(`Saved state (v${stateToSave.version}) to ${stateFilePath}`);
-	} catch (error: any) {
-		throw new Error(`Error saving state: ${error.message}`);
+export function saveState(
+	newState: {
+		migrationFilename: string;
+		migrationState: MigrationState;
+		currentDeclarativeTables: Record<string, DeclarativeTableState>;
+		currentFileChecksums: Record<string, string>;
+		processedFiles: Record<string, ProcessedSqlFile>;
+	},
+	configFilePath: string
+): void {
+	const stateFilePath = getStateFilePath(configFilePath);
+	debug(`Attempting to save state to: ${stateFilePath}`, 'verbose');
+
+	// Load existing state or get initial state
+	const currentState = loadState(configFilePath); // Load the *previous* state
+
+	// Create a deep copy to avoid modifying the original object directly
+	const stateToSave = JSON.parse(JSON.stringify(currentState)) as SqlSyncState;
+
+	// --- Update state based on newState --- START ---
+	stateToSave.version = SQLSYNC_STATE_VERSION; // Ensure version is current
+
+	// Add new migration to history if it's not already there
+	if (!stateToSave.migrationHistory.includes(newState.migrationFilename)) {
+		stateToSave.migrationHistory.push(newState.migrationFilename);
 	}
+	// Update or add the state for this specific migration
+	stateToSave.migrations[newState.migrationFilename] = newState.migrationState;
+
+	// Overwrite the current maps with the latest data from the migration
+	stateToSave.currentDeclarativeTables = newState.currentDeclarativeTables;
+	stateToSave.currentFileChecksums = newState.currentFileChecksums;
+
+	// Check if newState.processedFiles exists and has keys before updating
+	if (newState.processedFiles && Object.keys(newState.processedFiles).length > 0) {
+		debug('Populating currentSplitStatementFiles from new processedFiles', 'verbose');
+		stateToSave.currentSplitStatementFiles = {}; // Clear previous map
+		for (const [filePath, processedFile] of Object.entries(newState.processedFiles)) {
+			if (!processedFile.declarativeTable && processedFile.splitStatements) {
+				stateToSave.currentSplitStatementFiles[filePath] = processedFile.statements;
+			}
+		}
+	} else {
+		debug('Skipping population of currentSplitStatementFiles (no new processedFiles provided)', 'verbose');
+	}
+	// --- Update state based on newState --- END ---
+
+	// Ensure all file paths stored in the state are relative to the config file
+	debug('Normalizing paths in state before saving...', 'verbose');
+
+	stateToSave.migrationHistory = stateToSave.migrationHistory.map((migration) =>
+		ensureRelativePath(configFilePath, migration)
+	);
+
+	stateToSave.migrations = Object.fromEntries(
+		Object.entries(stateToSave.migrations).map(([key, value]) => [
+			ensureRelativePath(configFilePath, key),
+			value,
+		])
+	);
+
+	stateToSave.currentDeclarativeTables = Object.fromEntries(
+		Object.entries(stateToSave.currentDeclarativeTables).map(([key, value]) => [
+			ensureRelativePath(configFilePath, key),
+			value,
+		])
+	);
+
+	stateToSave.currentFileChecksums = Object.fromEntries(
+		Object.entries(stateToSave.currentFileChecksums).map(([key, value]) => [
+			ensureRelativePath(configFilePath, key),
+			value,
+		])
+	);
+
+	stateToSave.currentSplitStatementFiles = Object.fromEntries(
+		Object.entries(stateToSave.currentSplitStatementFiles || {}).map(([key, value]) => [
+			ensureRelativePath(configFilePath, key), // Ensure key is relative
+			value,
+		])
+	);
+
+	// Create directory if it doesn't exist
+	const stateFileDir = path.dirname(stateFilePath);
+	if (!fs.existsSync(stateFileDir)) {
+		fs.mkdirSync(stateFileDir, { recursive: true });
+	}
+
+	// Write the state file
+	fs.writeFileSync(stateFilePath, JSON.stringify(stateToSave, null, 2));
+	console.log(`Saved state (v${stateToSave.version}) to ${stateFilePath}`);
 }
 
 /**
@@ -229,7 +277,7 @@ export function saveLocalAppliedMigrations(
 	if (appliedMigrations.length > 0) {
 		console.log(`[DEBUG] First migration filename: ${appliedMigrations[0]}`);
 	}
-	
+
 	try {
 		// Create directory if it doesn't exist
 		const dirPath = path.dirname(filePath);
@@ -237,11 +285,11 @@ export function saveLocalAppliedMigrations(
 			console.log(`[DEBUG] Creating directory: ${dirPath}`);
 			fs.mkdirSync(dirPath, { recursive: true });
 		}
-		
+
 		// Join with newline and add a trailing newline for consistency
 		const fileContents = appliedMigrations.join('\n') + (appliedMigrations.length > 0 ? '\n' : '');
 		console.log(`[DEBUG] File contents to write: ${fileContents.substring(0, 100)}${fileContents.length > 100 ? '...' : ''}`);
-		
+
 		fs.writeFileSync(filePath, fileContents, 'utf8');
 		console.log(`Saved ${appliedMigrations.length} locally applied migrations to ${filePath}`);
 	} catch (error: any) {
@@ -256,135 +304,79 @@ export function saveLocalAppliedMigrations(
 }
 
 /**
+ * Creates a flat map of file paths to ProcessedSqlFile objects from ProcessedSection array.
+ */
+export function buildProcessedFilesMap(sections: ProcessedSection[]): Record<string, ProcessedSqlFile> {
+	const map: Record<string, ProcessedSqlFile> = {};
+	sections.forEach(section => {
+		section.items.forEach(item => {
+			if ('files' in item) { // It's a ProcessedDirectory
+				item.files.forEach(file => {
+					map[file.filePath] = file;
+				});
+			} else { // It's a ProcessedSqlFile
+				map[item.filePath] = item;
+			}
+		});
+	});
+	return map;
+}
+
+/**
  * Adds a new migration to the state and saves it.
  * @param configFilePath Absolute path to the sqlsync.yaml config file.
  * @param migrationName Name of the migration file (e.g., "20240101000000_initial.sql")
- * @param migrationContent The SQL content of the migration file.
  * @param migrationState The state to add for this migration.
+ * @param newFileChecksums The latest currentFileChecksums to save.
+ * @param newDeclarativeTables The latest currentDeclarativeTables to save.
+ * @param processedFilesMap Map of all processed files from the current run.
  */
-export function saveMigrationToState(
+export function updateStateAfterMigration(
 	configFilePath: string,
 	migrationName: string,
-	migrationContent: string,
-	migrationState: MigrationState
+	migrationState: MigrationState,
+	newFileChecksums: { [filePath: string]: string },
+	newDeclarativeTables: { [sourceFilePath: string]: DeclarativeTableState },
+	processedFilesMap: Record<string, ProcessedSqlFile>
 ): void {
-	console.log(`\n[DEBUG] saveMigrationToState starting`);
-	console.log(`[DEBUG] Migration filename: ${migrationName}`);
-	console.log(`[DEBUG] Migration content length: ${migrationContent.length} bytes`);
-	console.log(`[DEBUG] Migration state has ${migrationState.statements?.length || 0} statements`);
-	
-	// Load current state
+	debug(`Attempting to save migration state for: ${migrationName}`);
 	const state = loadState(configFilePath);
-	console.log(`[DEBUG] Loaded state has ${Object.keys(state.currentFileChecksums).length} file checksums`);
-	
-	// Add migration name to history
+
+	// Ensure migration history is initialized
+	if (!Array.isArray(state.migrationHistory)) {
+		state.migrationHistory = [];
+	}
+
+	// Add migration to history if it's not already there
 	if (!state.migrationHistory.includes(migrationName)) {
 		state.migrationHistory.push(migrationName);
-		console.log(`[DEBUG] Added migration to history (now ${state.migrationHistory.length} migrations)`);
+		debug(`Added ${migrationName} to migration history`);
 	} else {
-		console.log(`[DEBUG] Migration already in history, will update its state`);
+		debug(`${migrationName} already exists in migration history.`);
 	}
-	
-	// Store the migration state
-	// Ensure the migration name is relative
-	const relativeMigrationName = ensureRelativePath(configFilePath, migrationName);
-	state.migrations[relativeMigrationName] = {
+
+	// Add the specific state for this migration
+	state.migrations[migrationName] = {
 		...migrationState,
-		fileChecksum: getHash(migrationContent)
+		createdAt: new Date().toISOString(), // Add timestamp
 	};
-	console.log(`[DEBUG] Saved migration state for ${relativeMigrationName}`);
-	
-	// Process declarative tables from this migration
-	// This updates the current state of all tables based on the migration
-	if (migrationState.declarativeTables && Object.keys(migrationState.declarativeTables).length > 0) {
-		// Need to ensure these are stored with relative paths
-		const declarativeTablesWithRelativePaths = Object.fromEntries(
-			Object.entries(migrationState.declarativeTables).map(([filePath, tableState]) => [
-				ensureRelativePath(configFilePath, filePath),
-				tableState
-			])
-		);
-		
-		console.log(`[DEBUG] Processing ${Object.keys(declarativeTablesWithRelativePaths).length} declarative tables`);
-		
-		// Update the state with the relative path version
-		Object.entries(declarativeTablesWithRelativePaths).forEach(([relativePath, tableState]) => {
-			state.currentDeclarativeTables[relativePath] = tableState;
-			console.log(`[DEBUG] Updated declarative table state for: ${relativePath}`);
-			
-			// Update the checksum for this file
-			if (tableState.rawStatementChecksum) {
-				state.currentFileChecksums[relativePath] = tableState.rawStatementChecksum;
-				console.log(`[DEBUG]   - Updated checksum for declarative table: ${relativePath}`);
-			}
-		});
-	} else {
-		console.log(`[DEBUG] No declarative tables in this migration`);
-	}
-	
-	// Update checksums for all statements in the migration
-	// This ensures that regular SQL files (not just declarative tables) have their checksums tracked
-	if (migrationState.statements && migrationState.statements.length > 0) {
-		// Track which files we've seen to avoid duplicate updates
-		const processedFilePaths = new Set<string>();
-		
-		console.log(`[DEBUG] Processing ${migrationState.statements.length} statements for checksums`);
-		
-		migrationState.statements.forEach((statement, idx) => {
-			if (statement.filePath && statement.checksum) {
-				// Ensure the path is relative to the config directory
-				const relativePath = ensureRelativePath(configFilePath, statement.filePath);
-				
-				console.log(`[DEBUG] Statement ${idx + 1}: ${relativePath}`);
-				
-				// Only process each file once
-				if (!processedFilePaths.has(relativePath)) {
-					processedFilePaths.add(relativePath);
-					console.log(`[DEBUG]   - First time seeing this file, will update checksum`);
-					
-					// For SQL files, use the file's raw checksum, not the statement checksum
-					// This ensures files are properly tracked as "unchanged" in subsequent runs
-					// Fetch the actual file content to generate a consistent checksum
-					try {
-						// Convert to absolute path ONLY for file I/O operations
-						const absolutePath = toAbsolutePath(configFilePath, relativePath);
-						if (fs.existsSync(absolutePath)) {
-							const fileContent = fs.readFileSync(absolutePath, 'utf8');
-							const newChecksum = getHash(fileContent);
-							console.log(`[DEBUG]   - File exists, calculating new checksum: ${newChecksum.substring(0, 8)}...`);
-							
-							// Log old checksum if it exists
-							if (state.currentFileChecksums[relativePath]) {
-								console.log(`[DEBUG]   - Replacing old checksum: ${state.currentFileChecksums[relativePath].substring(0, 8)}...`);
-							} else {
-								console.log(`[DEBUG]   - No previous checksum exists for this file`);
-							}
-							
-							// Store with relative path only
-							state.currentFileChecksums[relativePath] = newChecksum;
-							console.log(`- Updated checksum for file: ${relativePath}`);
-						} else {
-							// If file doesn't exist (e.g., it was deleted in the migration),
-							// use the statement checksum as a fallback
-							console.log(`[DEBUG]   - File doesn't exist, using statement checksum: ${statement.checksum.substring(0, 8)}...`);
-							state.currentFileChecksums[relativePath] = statement.checksum;
-							console.log(`- Updated checksum for non-existent file: ${relativePath}`);
-						}
-					} catch (error) {
-						console.error(`Error updating checksum for ${relativePath}:`, error);
-						// Use statement checksum as fallback if file can't be read
-						state.currentFileChecksums[relativePath] = statement.checksum;
-					}
-				} else {
-					console.log(`[DEBUG]   - Already processed this file, skipping duplicate update`);
-				}
-			} else {
-				console.log(`[DEBUG]   - Statement missing filePath or checksum, skipping`);
-			}
-		});
-	}
-	
-	// Save state changes
-	saveState(configFilePath, state);
-	console.log(`[DEBUG] Saved updated state with ${Object.keys(state.currentFileChecksums).length} file checksums`);
+	debug(`Added migration state entry for ${migrationName}`);
+
+	// Update the top-level current checksums and tables
+	state.currentFileChecksums = newFileChecksums;
+	state.currentDeclarativeTables = newDeclarativeTables;
+	debug(`Updated currentFileChecksums with ${Object.keys(newFileChecksums).length} entries`);
+	debug(`Updated currentDeclarativeTables with ${Object.keys(newDeclarativeTables).length} entries`);
+
+	// Save the updated state
+	saveState(
+		{
+			migrationFilename: migrationName,
+			migrationState: state.migrations[migrationName],
+			currentDeclarativeTables: state.currentDeclarativeTables, // Pass existing
+			currentFileChecksums: state.currentFileChecksums, // Pass existing
+			processedFiles: processedFilesMap, // Pass the map from the generate command
+		},
+		configFilePath
+	);
 }

@@ -187,6 +187,7 @@ async function markMigration(
     state.migrations[migrationName] = {
       statements: [],
       declarativeTables: {},
+      sourceFileChecksums: {}, // Add the required property
       marked: true
     };
   } else {

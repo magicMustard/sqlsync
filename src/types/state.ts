@@ -1,5 +1,7 @@
 // src/types/state.ts
 
+import { ProcessedStatement } from './processed-sql';
+
 /**
  * Represents the parsed state of a declarative table definition.
  * Stored within the SqlSyncState under the migration that created/modified it.
@@ -40,6 +42,10 @@ export interface MigrationState {
   declarativeTables: {
     [sourceFilePath: string]: DeclarativeTableState;
   };
+  // Checksums of the source SQL files included in this migration, keyed by file path
+  sourceFileChecksums: {
+    [filePath: string]: { checksum: string };
+  };
   // Optional metadata
   createdAt?: string; // ISO timestamp
   // Whether this migration is marked as protected from rollback
@@ -70,6 +76,11 @@ export interface SqlSyncState {
   // Used for quick detection of changes in non-declarative files.
   currentFileChecksums: {
 	 [filePath: string]: string; // raw file checksum
+  };
+  // Statements from non-declarative files that use splitStatements=true as of the last state save.
+  // Used for diffing individual statements in these files.
+  currentSplitStatementFiles: {
+    [filePath: string]: ProcessedStatement[] | undefined;
   };
 }
 

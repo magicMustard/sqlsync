@@ -2,11 +2,23 @@
   "version": 1,
   "lastProductionMigration": null,
   "migrationHistory": [
-    "20250404003323_init.sql",
-    "20250404003402_added_subscription_id_to_tenants.sql"
+    "20250412020246_test_init.sql",
+    "20250412020316_test_init.sql",
+    "20250412020543_test_comment_change_v2.sql",
+    "20250412020602_test_rename_column.sql",
+    "20250412020858_test_rename_column_final.sql",
+    "20250412020919_test_rename_column_final.sql",
+    "20250412020930_test_rename_column_final.sql",
+    "20250412021057_test_rename_column_final.sql",
+    "20250412021116_test_rename_column_final.sql",
+    "20250412021533_test_split_statement_fix.sql",
+    "20250412021658_test_split_statement_fix_verbose_2.sql",
+    "20250412021733_test_split_statements_correct_directive.sql",
+    "20250413034341_test.sql",
+    "20250413034350_test.sql"
   ],
   "migrations": {
-    "20250404003323_init.sql": {
+    "20250412020246_test_init.sql": {
       "statements": [
         {
           "checksum": "5a9f9b700ad4ec30007ef7fd22f5a0aa712c784ebaab7f7fe4d213ea931678a7",
@@ -21,12 +33,16 @@
           "filePath": "schema/roles/roles.sql"
         },
         {
-          "checksum": "8796d4e0a21e94723ae6902283676e2274ac8b8ed306475ac64f295f8297f550",
+          "checksum": "7c14d3a8c193197e846bef78c2583516e1237ad21ac3e90b6cb7c6c06666d5a9",
           "filePath": "schema/functions/uuid_v7.sql"
         },
         {
-          "checksum": "7d2123f8548413b979f3219d345c712cddc263196c0321b92b7218978f00ff6d",
+          "checksum": "f43b798ba684996ee4e7a914194c195e572b056dfd42d492b32c2f7d460bf276",
           "filePath": "schema/functions/update_updated_at_column.sql"
+        },
+        {
+          "checksum": "455bc5f20691cf03369a112d701bb723a3fa18b40a84cfcdccfe0339e12d5256",
+          "filePath": "schema/functions/new_test_function.sql"
         },
         {
           "checksum": "c051436735f0907f6013d188c12f74b0869dc390b542f27b612f454fd84c3bf4",
@@ -41,7 +57,7 @@
           "filePath": "schema/tables/system_config/grants.sql"
         },
         {
-          "checksum": "27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53",
+          "checksum": "7c33d910250ce3d7e79211f8c062b776bd14d5e172871d611fd55a263fb5917b",
           "filePath": "schema/tables/tenants/table.sql"
         },
         {
@@ -73,10 +89,6 @@
           "filePath": "schema/tables/profiles/rls.sql"
         },
         {
-          "checksum": "1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549",
-          "filePath": "schema/tables/profiles/checks.sql"
-        },
-        {
           "checksum": "86c2c4133545000e5641178ab1d2f721041aa3c572b08985b901ee93589ec88b",
           "filePath": "schema/tables/profiles/grants.sql"
         },
@@ -104,12 +116,106 @@
                 "isUnique": true
               },
               {
-                "name": "name",
+                "name": "phone",
                 "dataType": "TEXT",
                 "isNullable": true,
                 "defaultValue": "NULL",
                 "isPrimaryKey": false,
                 "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "setup_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "description",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "active",
+                "dataType": "BOOLEAN",
+                "isNullable": false,
+                "defaultValue": "TRUE",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "deleted_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "status",
+                "dataType": "VARCHAR(50)",
+                "isNullable": true,
+                "defaultValue": "'active'",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "last_login_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "7c33d910250ce3d7e79211f8c062b776bd14d5e172871d611fd55a263fb5917b",
+          "sourceFilePath": "schema/tables/tenants/table.sql"
+        }
+      },
+      "sourceFileChecksums": {
+        "schema/tables/tenants/table.sql": {
+          "checksum": "7c33d910250ce3d7e79211f8c062b776bd14d5e172871d611fd55a263fb5917b"
+        }
+      },
+      "createdAt": "2025-04-12T02:02:46.291Z",
+      "fileChecksum": "bd2cb6b21e82c67dda4515168daac811a9ce845b8a63e124794da2ef0af385b0"
+    },
+    "20250412020316_test_init.sql": {
+      "statements": [],
+      "declarativeTables": {
+        "schema/tables/tenants/table.sql": {
+          "tableName": "public.tenants",
+          "parsedStructure": {
+            "tableName": "public.tenants",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "UUID",
+                "isNullable": false,
+                "defaultValue": "functions.uuid_v7()",
+                "isPrimaryKey": true,
+                "isUnique": true
               },
               {
                 "name": "phone",
@@ -166,20 +272,233 @@
                 "defaultValue": "CURRENT_TIMESTAMP",
                 "isPrimaryKey": false,
                 "isUnique": false
+              },
+              {
+                "name": "status",
+                "dataType": "VARCHAR(50)",
+                "isNullable": true,
+                "defaultValue": "'active'",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "last_login_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
               }
             ]
           },
-          "rawStatementChecksum": "27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53",
+          "rawStatementChecksum": "f097d33ebdf56973d24b0feaa7da3b035933b668e8fb1de65b9e572bcf12a14d",
           "sourceFilePath": "schema/tables/tenants/table.sql"
         }
       },
-      "createdAt": "2025-04-04T00:33:23.449Z",
-      "fileChecksum": "bfee5c54033190d6bcd26e3a211757d412a116379afa688093db4b9c0ade5054"
+      "sourceFileChecksums": {},
+      "createdAt": "2025-04-12T02:03:16.677Z",
+      "fileChecksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
-    "20250404003402_added_subscription_id_to_tenants.sql": {
+    "20250412020543_test_comment_change_v2.sql": {
+      "statements": [],
+      "declarativeTables": {
+        "schema/tables/tenants/table.sql": {
+          "tableName": "public.tenants",
+          "parsedStructure": {
+            "tableName": "public.tenants",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "UUID",
+                "isNullable": false,
+                "defaultValue": "functions.uuid_v7()",
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "phone",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "setup_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "description",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "active",
+                "dataType": "BOOLEAN",
+                "isNullable": false,
+                "defaultValue": "TRUE",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "updated_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "status",
+                "dataType": "VARCHAR(50)",
+                "isNullable": true,
+                "defaultValue": "'active'",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "last_login_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "a2388432b91f2357da30a8a61618af68a7d01e9bd40d8d0ce380c0dfca081484",
+          "sourceFilePath": "schema/tables/tenants/table.sql"
+        }
+      },
+      "sourceFileChecksums": {},
+      "createdAt": "2025-04-12T02:05:43.928Z",
+      "fileChecksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "20250412020602_test_rename_column.sql": {
+      "statements": [],
+      "declarativeTables": {
+        "schema/tables/tenants/table.sql": {
+          "tableName": "public.tenants",
+          "parsedStructure": {
+            "tableName": "public.tenants",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "UUID",
+                "isNullable": false,
+                "defaultValue": "functions.uuid_v7()",
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "phone",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "setup_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "description",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "active",
+                "dataType": "BOOLEAN",
+                "isNullable": false,
+                "defaultValue": "TRUE",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "deleted_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "status",
+                "dataType": "VARCHAR(50)",
+                "isNullable": true,
+                "defaultValue": "'active'",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "last_login_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "a6a1b9db74a4d3cfb90f165341f8bb5b9517dea45db613b25f8fb24a9e0fa852",
+          "sourceFilePath": "schema/tables/tenants/table.sql"
+        }
+      },
+      "sourceFileChecksums": {},
+      "createdAt": "2025-04-12T02:06:02.727Z",
+      "fileChecksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "20250412020858_test_rename_column_final.sql": {
       "statements": [
         {
-          "checksum": "4aee840062f8cad6091f098b64a02f9ccbf946d7319bb3d4f90b2d320c667aab",
+          "checksum": "b594dca9ab16d6cbb7d6f4c17b6f32a1676354d331b58abff67296fbcfd81d07",
           "filePath": "schema/tables/tenants/table.sql"
         }
       ],
@@ -198,12 +517,107 @@
                 "isUnique": true
               },
               {
-                "name": "name",
+                "name": "phone",
                 "dataType": "TEXT",
                 "isNullable": true,
                 "defaultValue": "NULL",
                 "isPrimaryKey": false,
                 "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "setup_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "description",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "active",
+                "dataType": "BOOLEAN",
+                "isNullable": false,
+                "defaultValue": "TRUE",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "updated_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "status",
+                "dataType": "VARCHAR(50)",
+                "isNullable": true,
+                "defaultValue": "'active'",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "last_login_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "a2388432b91f2357da30a8a61618af68a7d01e9bd40d8d0ce380c0dfca081484",
+          "sourceFilePath": "schema/tables/tenants/table.sql"
+        }
+      },
+      "sourceFileChecksums": {},
+      "createdAt": "2025-04-12T02:08:58.478Z",
+      "fileChecksum": "13fa5506cca02488371d2e58a6c8f2b714ae2365a8881ec82580869b73b37856"
+    },
+    "20250412020919_test_rename_column_final.sql": {
+      "statements": [
+        {
+          "checksum": "142ba7b1709aec2571ae33a93d8aa6f2938fa804c1a3bb2ae6ac373cd0fd3b2f",
+          "filePath": "schema/tables/tenants/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "schema/tables/tenants/table.sql": {
+          "tableName": "public.tenants",
+          "parsedStructure": {
+            "tableName": "public.tenants",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "UUID",
+                "isNullable": false,
+                "defaultValue": "functions.uuid_v7()",
+                "isPrimaryKey": true,
+                "isUnique": true
               },
               {
                 "name": "phone",
@@ -238,7 +652,94 @@
                 "isUnique": false
               },
               {
-                "name": "subscription_id",
+                "name": "active",
+                "dataType": "BOOLEAN",
+                "isNullable": false,
+                "defaultValue": "TRUE",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "status",
+                "dataType": "VARCHAR(50)",
+                "isNullable": true,
+                "defaultValue": "'active'",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "last_login_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "5ef7bf81f2cdccf82ccb89a693dec2cef5b41bc4fa8223e09d94d53fae450210",
+          "sourceFilePath": "schema/tables/tenants/table.sql"
+        }
+      },
+      "sourceFileChecksums": {},
+      "createdAt": "2025-04-12T02:09:19.997Z",
+      "fileChecksum": "be66c479119b084bb30c7715da0618d9ae2055ad4959ebc4e054bd6609b813a5"
+    },
+    "20250412020930_test_rename_column_final.sql": {
+      "statements": [
+        {
+          "checksum": "1c9c31a5f72f010134b647148d5331eaf86ede8303c75504a3471e1c48c30ff7",
+          "filePath": "schema/tables/tenants/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "schema/tables/tenants/table.sql": {
+          "tableName": "public.tenants",
+          "parsedStructure": {
+            "tableName": "public.tenants",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "UUID",
+                "isNullable": false,
+                "defaultValue": "functions.uuid_v7()",
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "phone",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "setup_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "description",
                 "dataType": "TEXT",
                 "isNullable": true,
                 "defaultValue": "NULL",
@@ -268,15 +769,296 @@
                 "defaultValue": "CURRENT_TIMESTAMP",
                 "isPrimaryKey": false,
                 "isUnique": false
+              },
+              {
+                "name": "status",
+                "dataType": "VARCHAR(50)",
+                "isNullable": true,
+                "defaultValue": "'active'",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "last_login_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
               }
             ]
           },
-          "rawStatementChecksum": "bd652b75af182489c22a5e1d6048073d4877bfa6c011b6fdd8c9f646c2df9aec",
+          "rawStatementChecksum": "a2388432b91f2357da30a8a61618af68a7d01e9bd40d8d0ce380c0dfca081484",
           "sourceFilePath": "schema/tables/tenants/table.sql"
         }
       },
-      "createdAt": "2025-04-04T00:34:02.697Z",
-      "fileChecksum": "da3d0f286a6c183ffe6ada2a34901f60d84cf928472eb9e9cab742ee9829e02f"
+      "sourceFileChecksums": {},
+      "createdAt": "2025-04-12T02:09:30.867Z",
+      "fileChecksum": "65a7e5791be88fe6cfa77eb91460247ec61f044975aa8a14a7d1b63db99aed75"
+    },
+    "20250412021057_test_rename_column_final.sql": {
+      "statements": [],
+      "declarativeTables": {},
+      "sourceFileChecksums": {
+        "schema/tables/tenants/triggers.sql": {
+          "checksum": "38774cadf2acc25ded264492793217ea46e8cbb5cb76a4eff841440a4332c844"
+        }
+      },
+      "createdAt": "2025-04-12T02:10:57.922Z",
+      "fileChecksum": "8b230e643421d3668d4535ba19e7e3d2fecf3b63ffcc0fa2141d7a35c81a856b"
+    },
+    "20250412021116_test_rename_column_final.sql": {
+      "statements": [],
+      "declarativeTables": {},
+      "sourceFileChecksums": {
+        "schema/tables/tenants/triggers.sql": {
+          "checksum": "beca9a8fa6fa423b621c762693ba7f1e98967d901c8d1aba38ece02ec529e7e9"
+        }
+      },
+      "createdAt": "2025-04-12T02:11:16.570Z",
+      "fileChecksum": "864a8ba459d2cdffe4a20f8d0e3a1376d003569043316f7e200c0df53bb0b585"
+    },
+    "20250412021533_test_split_statement_fix.sql": {
+      "statements": [],
+      "declarativeTables": {},
+      "sourceFileChecksums": {
+        "schema/tables/tenants/triggers.sql": {
+          "checksum": "a017731bd143288df696d5fb2b90bedcbe83ef51ab0905a040d21ed4eb64486b"
+        }
+      },
+      "createdAt": "2025-04-12T02:15:33.642Z",
+      "fileChecksum": "a289a2f7710373cf6fba5390eb790cd25e82297dfd5228e8346cb3dff3af147f"
+    },
+    "20250412021658_test_split_statement_fix_verbose_2.sql": {
+      "statements": [],
+      "declarativeTables": {},
+      "sourceFileChecksums": {
+        "schema/tables/tenants/triggers.sql": {
+          "checksum": "3c2603b11914578104885677d0f773a5bc712d85dde8d2ec03bd3ecb77671590"
+        }
+      },
+      "createdAt": "2025-04-12T02:16:58.538Z",
+      "fileChecksum": "ee0d2025267861731617a9bfaef517584610192bb78a32db2e01a080670be433"
+    },
+    "20250412021733_test_split_statements_correct_directive.sql": {
+      "statements": [],
+      "declarativeTables": {},
+      "sourceFileChecksums": {
+        "schema/tables/tenants/triggers.sql": {
+          "checksum": "fe162e488143cdd41b3dec03df638e063eec56a9d1020ace392775974a07b552"
+        }
+      },
+      "createdAt": "2025-04-12T02:17:33.413Z",
+      "fileChecksum": "549a0bc3914905addc18b9b9d0d6064f3d2391b7180cd237e3df46ee674e1441"
+    },
+    "20250413034341_test.sql": {
+      "statements": [
+        {
+          "checksum": "9fe75e1ed38034a69160a3151806edd0cf3380cdab3007b9a6f8173d8dd75aa0",
+          "filePath": "schema/tables/tenants/table.sql"
+        }
+      ],
+      "declarativeTables": {
+        "schema/tables/tenants/table.sql": {
+          "tableName": "public.tenants",
+          "parsedStructure": {
+            "tableName": "public.tenants",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "UUID",
+                "isNullable": false,
+                "defaultValue": "functions.uuid_v7()",
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "phone",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "setup_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "description",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "active",
+                "dataType": "BOOLEAN",
+                "isNullable": false,
+                "defaultValue": "TRUE",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "updated_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "status",
+                "dataType": "VARCHAR(50)",
+                "isNullable": true,
+                "defaultValue": "'active'",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "last_login_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "d66fa529be5d9bbab3fd4fd17115322229da446fc9c748a87cf075fd866f0057",
+          "sourceFilePath": "schema/tables/tenants/table.sql"
+        }
+      },
+      "sourceFileChecksums": {
+        "schema/tables/tenants/triggers.sql": {
+          "checksum": "123be546b1ddf80db6ba51c55d8b887beb0534a0eab30c68fee43e21fe8f6dfc"
+        }
+      },
+      "createdAt": "2025-04-13T03:43:41.395Z",
+      "fileChecksum": "6195d743076039f1bd73aea06751b23a36361e748c09191832e50680319f9225"
+    },
+    "20250413034350_test.sql": {
+      "statements": [],
+      "declarativeTables": {
+        "schema/tables/tenants/table.sql": {
+          "tableName": "public.tenants",
+          "parsedStructure": {
+            "tableName": "public.tenants",
+            "columns": [
+              {
+                "name": "id",
+                "dataType": "UUID",
+                "isNullable": false,
+                "defaultValue": "functions.uuid_v7()",
+                "isPrimaryKey": true,
+                "isUnique": true
+              },
+              {
+                "name": "phone",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "email",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "setup_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "description",
+                "dataType": "TEXT",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "active",
+                "dataType": "BOOLEAN",
+                "isNullable": false,
+                "defaultValue": "TRUE",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "created_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": false,
+                "defaultValue": "CURRENT_TIMESTAMP",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "updated_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "status",
+                "dataType": "VARCHAR(50)",
+                "isNullable": true,
+                "defaultValue": "'active'",
+                "isPrimaryKey": false,
+                "isUnique": false
+              },
+              {
+                "name": "last_login_at",
+                "dataType": "TIMESTAMP WITH TIME ZONE",
+                "isNullable": true,
+                "defaultValue": "NULL",
+                "isPrimaryKey": false,
+                "isUnique": false
+              }
+            ]
+          },
+          "rawStatementChecksum": "d66fa529be5d9bbab3fd4fd17115322229da446fc9c748a87cf075fd866f0057",
+          "sourceFilePath": "schema/tables/tenants/table.sql"
+        }
+      },
+      "sourceFileChecksums": {
+        "schema/tables/tenants/triggers.sql": {
+          "checksum": "123be546b1ddf80db6ba51c55d8b887beb0534a0eab30c68fee43e21fe8f6dfc"
+        }
+      },
+      "createdAt": "2025-04-13T03:43:50.413Z",
+      "fileChecksum": "64b1b23218b7a55eaf6be2ee1e7c2eaf3b88ec5762266f32309c5f892dc034c1"
     }
   },
   "currentDeclarativeTables": {
@@ -292,14 +1074,6 @@
             "defaultValue": "functions.uuid_v7()",
             "isPrimaryKey": true,
             "isUnique": true
-          },
-          {
-            "name": "name",
-            "dataType": "TEXT",
-            "isNullable": true,
-            "defaultValue": "NULL",
-            "isPrimaryKey": false,
-            "isUnique": false
           },
           {
             "name": "phone",
@@ -334,14 +1108,6 @@
             "isUnique": false
           },
           {
-            "name": "subscription_id",
-            "dataType": "TEXT",
-            "isNullable": true,
-            "defaultValue": "NULL",
-            "isPrimaryKey": false,
-            "isUnique": false
-          },
-          {
             "name": "active",
             "dataType": "BOOLEAN",
             "isNullable": false,
@@ -360,35 +1126,51 @@
           {
             "name": "updated_at",
             "dataType": "TIMESTAMP WITH TIME ZONE",
-            "isNullable": false,
-            "defaultValue": "CURRENT_TIMESTAMP",
+            "isNullable": true,
+            "defaultValue": "NULL",
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "status",
+            "dataType": "VARCHAR(50)",
+            "isNullable": true,
+            "defaultValue": "'active'",
+            "isPrimaryKey": false,
+            "isUnique": false
+          },
+          {
+            "name": "last_login_at",
+            "dataType": "TIMESTAMP WITH TIME ZONE",
+            "isNullable": true,
+            "defaultValue": "NULL",
             "isPrimaryKey": false,
             "isUnique": false
           }
         ]
       },
-      "rawStatementChecksum": "bd652b75af182489c22a5e1d6048073d4877bfa6c011b6fdd8c9f646c2df9aec",
+      "rawStatementChecksum": "d66fa529be5d9bbab3fd4fd17115322229da446fc9c748a87cf075fd866f0057",
       "sourceFilePath": "schema/tables/tenants/table.sql"
     }
   },
   "currentFileChecksums": {
-    "schema/tables/tenants/table.sql": "bd652b75af182489c22a5e1d6048073d4877bfa6c011b6fdd8c9f646c2df9aec",
     "schema/schemas.sql": "8586a1ed3670e93a36af08508a12fddf38f388cbafc59e10476bdf8f2261cb3d",
     "schema/extensions.sql": "3d654b5da0849c26ba799a33e1d8af330dc7adca808be02d9943999e207a7919",
     "schema/roles/roles.sql": "e2c8e345aa1b94f4cb24a1ed618de151ad2c385a0a1a00978b04c1dc3f0ee3b6",
-    "schema/functions/uuid_v7.sql": "8133950c3aaba41283dc926c68d5f8f91cd17ba2837d24481b9c9f3165109800",
-    "schema/functions/update_updated_at_column.sql": "df599c24644c520bbd143f3097d3eb50e5e573d884e9c19e357bb78ba8f3eef6",
+    "schema/functions/uuid_v7.sql": "f88d19e7d94df7f1ce2ec47006da98e4f9f6b65fb72f211d9cb333c33c2e1c01",
+    "schema/functions/update_updated_at_column.sql": "ba1743c4eb07b7b777324f595b7018447a90725536c49e0fa4cb9a858e45ed37",
+    "schema/functions/new_test_function.sql": "bffcfadab1f573f7f9d62fd4375efc8f10170f85ccec3626f59ee4ccc670dee5",
     "schema/tables/system_config/table.sql": "ec8dae84358dc44b66cb3046918f5cc4ee189a01e5cc4130b044e18bf22df1cc",
     "schema/tables/system_config/rls.sql": "a925737aa2b0863f8ac9c17c260fdc838df84389bbcb686915a8cb580ad44960",
     "schema/tables/system_config/grants.sql": "2c9023cecacb0a202761c54a50ed1b02d02ed71bf2b9f764ca99ba5f9a943d13",
+    "schema/tables/tenants/table.sql": "d66fa529be5d9bbab3fd4fd17115322229da446fc9c748a87cf075fd866f0057",
     "schema/tables/tenants/rls.sql": "4e8f0a412cbe0d859aa67263e44caa79df18d93fe64e5d7bb4e60404a84dfc7e",
     "schema/tables/tenants/grants.sql": "6afa5bfa7dc1589ef017e2e5e3e3900aa7ba4fa0ded6acb82a74dcfac068f2b5",
-    "schema/tables/tenants/triggers.sql": "4582bea585b618339938db474dfda8bc3ee16f02d0b8db450b21f75e500880b7",
+    "schema/tables/tenants/triggers.sql": "fe162e488143cdd41b3dec03df638e063eec56a9d1020ace392775974a07b552",
     "schema/tables/tenants/indexes.sql": "c281758d30d5d04b0d3217f8fee825b5e84f7adce7b5f0a96e7c07e71bdf6ec4",
     "schema/tables/profiles/types.sql": "ca5bc105960eb9250303831a9b73c72f0254b9e0d292f7a473a5dd5e432a6726",
     "schema/tables/profiles/table.sql": "1bd3aae10f64ee9963048c4c7582d0e8fd5d9c292a43a85514cb5d9684234662",
     "schema/tables/profiles/rls.sql": "d0d86f22ca5d9cc0f9a4dc22cd600f4b60ebdcf7bf7dc7d49e266ce4f4cc7953",
-    "schema/tables/profiles/checks.sql": "1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549",
     "schema/tables/profiles/grants.sql": "20747b6855899882518991aa4d4c59b76dbc8d978be7be0b2253437043b033cc",
     "schema/tables/profiles/indexes.sql": "0469103f4e2ec3ab9933b0c81d6fcc9a97202860294119b234eebb176ae18b22",
     "schema/seeds/system_config.sql": "bc68413dbbe03f2ab81fadf448b15f44c528fc4fa4e215ce7670bb7e2064ce08"

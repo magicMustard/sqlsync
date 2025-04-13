@@ -479,7 +479,7 @@ export async function processSqlFile(
 	return {
 		filePath: relativePath || fileName, // Use relative path (or filename)
 		fileName,
-		rawFileContent: fileContent,
+		rawFileContent: fileContent, // Add the missing raw file content
 		rawFileChecksum: fileChecksum,
 		normalizedChecksum: normalizedChecksum, // Use explicit assignment instead of shorthand
 		statements,

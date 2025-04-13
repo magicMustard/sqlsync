@@ -2,12 +2,14 @@ import {
 	ProcessedSection,
 	ProcessedSqlFile,
 	ProcessedStatement,
+	ProcessedDirectory,
 } from '../types/processed-sql';
 import { SqlSyncState, DeclarativeTableState } from '../types/state';
 import path from 'path';
-import { debug } from '../utils/debug';
 import { toRelativePath, toAbsolutePath } from '../utils/path-utils';
 import { getHash } from '../utils/crypto';
+import { debug } from '../utils/debug';
+import { diffTableDefinitions, AlterTableOperation } from './schema-differ';
 
 /**
  * Represents changes to a specific file between two states
@@ -52,10 +54,7 @@ export function diffStates(
 	currentStateSections: ProcessedSection[],
 	configPath?: string
 ): StateDifference {
-	debug('diffStates starting', 'basic');
-	debug(`State has ${Object.keys(sqlSyncState.currentFileChecksums).length} file checksums`, 'verbose');
-	debug(`Received ${currentStateSections.length} processed sections`, 'verbose');
-	debug(`Config path provided: ${configPath || 'No'}`, 'verbose');
+	debug("\n===== STARTING STATE COMPARISON =====", 'verbose');
 	
 	// Track all the files we've seen in the current run
 	const currentFiles = new Set<string>();
@@ -63,103 +62,158 @@ export function diffStates(
 	// Track all file changes
 	const fileChanges: FileChange[] = [];
 	
-	// Helper map for current files
+	// Create a map for efficient lookup of current files
 	const currentFilesMap = new Map<string, ProcessedSqlFile>();
-	currentStateSections.forEach((section) => {
-		section.items.forEach((item) => {
-			if ('files' in item) {
-				item.files.forEach((file) => {
-					// IMPORTANT: Always convert absolute paths to relative paths for consistent comparison
-					let relativePath = file.filePath;
-					
-					// Only convert if we have an absolute path and a config path
-					if (file.filePath.startsWith('/') && configPath) {
-						relativePath = toRelativePath(configPath, file.filePath);
-						debug(`Converting path: ${file.filePath} -> ${relativePath}`, 'verbose');
-					}
-					
-					// Store using the relative path
-					const fileWithRelativePath = {
-						...file,
-						filePath: relativePath
-					};
-					
-					currentFilesMap.set(relativePath, fileWithRelativePath);
+	currentStateSections.forEach((section: ProcessedSection) => {
+		section.items.forEach((item: ProcessedSqlFile | ProcessedDirectory) => {
+			if ('files' in item) { // It's a ProcessedDirectory
+				item.files.forEach((file: ProcessedSqlFile) => {
+					currentFilesMap.set(file.filePath, file);
 				});
-			} // else: handle direct files if needed
+			} else { // It's a ProcessedSqlFile
+				const file = item as ProcessedSqlFile;
+				currentFilesMap.set(file.filePath, file);
+			}
 		});
 	});
-	debug(`Found ${currentFilesMap.size} files in current processed sections`, 'verbose');
+	debug(`\nBuilding current files map from ${currentStateSections.length} sections`, 'verbose');
+	debug(`Current file map has ${currentFilesMap.size} files`, 'verbose');
+	debug(`Previous state has ${Object.keys(sqlSyncState.currentFileChecksums).length} file checksums`, 'verbose');
 	
 	// Combine keys from previous declarative tables and previous file checksums
-	// to represent all files known in the previous state.
+	// from the SqlSyncState to represent all files known in the previous state.
 	const previousFilePaths = new Set([
 		...Object.keys(sqlSyncState.currentDeclarativeTables),
 		...Object.keys(sqlSyncState.currentFileChecksums),
 	]);
 
 	// --- Identify Added and Modified Files ---
+	debug("\nAnalyzing files for changes...", 'verbose');
+	
 	for (const [filePath, currentFile] of currentFilesMap.entries()) {
+		// ** CORRECTED **: Read directly from SqlSyncState fields
 		const previousDeclarativeState = sqlSyncState.currentDeclarativeTables[filePath];
 		const previousRawChecksum = sqlSyncState.currentFileChecksums[filePath];
 		
-		debug(`Checking file: ${filePath}`, 'basic');
-		debug(`  Previous declarative state: ${previousDeclarativeState ? 'Yes' : 'No'}`, 'verbose');
-		debug(`  Previous raw checksum: ${previousRawChecksum ? previousRawChecksum.substring(0, 8) + '...' : 'None'}`, 'verbose');
-		debug(`  Current checksum: ${currentFile.normalizedChecksum ? currentFile.normalizedChecksum.substring(0, 8) + '...' : 'None'}`, 'verbose');
+		debug(`\nExamining file: ${filePath}`, 'verbose');
+		debug(`  Current checksum: ${currentFile.rawFileChecksum || 'N/A'}`, 'verbose');
+		debug(`  Previous checksum: ${previousRawChecksum || 'N/A'}`, 'verbose');
 		
 		// This file has been seen in the current run
 		currentFiles.add(filePath);
 		
 		if (!previousDeclarativeState && !previousRawChecksum) {
 			// File is completely new (not in declarative state or checksum list)
-			debug(`  Result: ADDED (new file)`, 'basic');
+			debug(`➕ ADDED FILE DETECTED: ${filePath} (Not in previous state)`, 'verbose');
 			fileChanges.push({ type: 'added', filePath, current: currentFile });
 		} else {
 			// File exists in some form in the previous state
 			let changeDetected = false;
-			let previousStateForChange: ProcessedSqlFile | DeclarativeTableState | undefined;
+			let previousStateForChange: DeclarativeTableState | undefined;
+			let statementChanges: StatementChange[] | undefined = undefined; // Declare here
 
 			if (currentFile.declarativeTable) {
 				// Current file IS declarative
 				if (!previousDeclarativeState) {
 					// Newly became declarative or was previously non-declarative
-					debug(`  Result: MODIFIED (newly became declarative)`, 'basic');
+					debug(`✅ MODIFIED FILE DETECTED: ${filePath} (Newly became declarative)`, 'verbose');
 					changeDetected = true;
-					// If previous was non-declarative, maybe capture that state?
-					// For now, treat as simple modification/addition context.
-				} else if (
-					currentFile.statements.length > 0 &&
-					previousDeclarativeState.rawStatementChecksum !==
-						currentFile.statements[0].checksum
-				) {
-					// Declarative table content changed (based on statement checksum)
-					debug(`  Result: MODIFIED (declarative table content changed)`, 'basic');
-					debug(`    Previous checksum: ${previousDeclarativeState.rawStatementChecksum.substring(0, 8)}...`, 'verbose');
-					debug(`    Current checksum: ${currentFile.statements[0].checksum.substring(0, 8)}...`, 'verbose');
-					changeDetected = true;
-					previousStateForChange = previousDeclarativeState;
+					// If previous was non-declarative, its checksum was stored in currentFileChecksums
+					// We don't capture the full previous non-declarative state here, just mark modified.
 				} else {
-					debug(`  Result: UNMODIFIED (declarative table unchanged)`, 'verbose');
+					// Compare parsed structures instead of just checksums
+					// Ensure both structures exist before diffing
+					if (!previousDeclarativeState.parsedStructure) {
+						debug(`⚠️ WARNING: Previous declarative state for ${filePath} missing parsedStructure`, 'verbose');
+					}
+					if (!currentFile.tableDefinition) {
+						debug(`⚠️ WARNING: Current declarative file ${filePath} missing tableDefinition`, 'verbose');
+					}
+
+					// Only diff if both structures are present
+					if (previousDeclarativeState.parsedStructure && currentFile.tableDefinition) {
+						const structuralChanges = diffTableDefinitions(
+							previousDeclarativeState.parsedStructure,
+							currentFile.tableDefinition
+						);
+
+						if (structuralChanges.length > 0) {
+							// Declarative table structure changed
+							debug(`✅ MODIFIED FILE DETECTED: ${filePath} (Declarative table structure changed)`, 'verbose');
+							// Ensure type safety when logging newColumnName
+							structuralChanges.forEach(op => {
+								let logMsg = `   - Detected op: ${op.type} ${op.columnName}`;
+								if (op.type === 'RENAME_COLUMN') {
+									logMsg += ` -> ${op.newColumnName}`;
+								}
+								debug(logMsg, 'verbose');
+							});
+							changeDetected = true;
+							previousStateForChange = previousDeclarativeState;
+						} else {
+							// Structure is the same, check if only comments/whitespace changed (via raw checksum)
+							// If the raw checksum changed BUT the structure didn't, it's technically modified,
+							// but the migration generator might skip it later if no SQL ops are needed.
+							// Let's keep the original raw checksum check for this subtle case.
+							if (previousRawChecksum !== currentFile.rawFileChecksum) {
+								debug(`✅ MODIFIED FILE DETECTED: ${filePath} (Declarative table raw content changed, but structure identical)`, 'verbose');
+								debug(`  Previous raw checksum: ${previousRawChecksum ? previousRawChecksum.substring(0, 8) + '...' : 'N/A'}`, 'verbose');
+								debug(`  Current raw checksum  : ${currentFile.rawFileChecksum ? currentFile.rawFileChecksum.substring(0, 8) + '...' : 'N/A'}`, 'verbose');
+								changeDetected = true; // Mark as modified so state checksum updates
+								previousStateForChange = previousDeclarativeState; // Keep previous state for context
+							} else {
+								debug(`⏭️ UNCHANGED FILE: ${filePath} (Declarative table structure and raw content unchanged)`, 'verbose');
+							}
+						}
+					} else {
+						// Handle cases where one or both structures might be missing (e.g., parse error)
+						// Fallback to raw checksum comparison if structures can't be compared reliably
+						if (previousRawChecksum !== currentFile.rawFileChecksum) {
+							debug(`✅ MODIFIED FILE DETECTED: ${filePath} (Declarative table raw content changed, structure comparison skipped)`, 'verbose');
+							changeDetected = true;
+							previousStateForChange = previousDeclarativeState;
+						} else {
+							debug(`⏭️ UNCHANGED FILE: ${filePath} (Declarative table raw content unchanged, structure comparison skipped)`, 'verbose');
+						}
+					}
 				}
 			} else {
 				// Current file is NOT declarative
 				if (previousDeclarativeState) {
 					// Changed FROM declarative TO non-declarative
-					debug(`  Result: MODIFIED (changed from declarative to non-declarative)`, 'basic');
+					debug(`✅ MODIFIED FILE DETECTED: ${filePath} (Changed from declarative to non-declarative)`, 'verbose');
 					changeDetected = true;
 					previousStateForChange = previousDeclarativeState;
-				} else if (previousRawChecksum !== currentFile.normalizedChecksum) {
-					// Non-declarative file content changed (based on normalized checksum)
-					debug(`  Result: MODIFIED (non-declarative content changed)`, 'basic');
-					debug(`    Previous checksum: ${previousRawChecksum.substring(0, 8)}...`, 'verbose');
-					debug(`    Current checksum: ${currentFile.normalizedChecksum.substring(0, 8)}...`, 'verbose');
+				// ** CORRECTED **: Compare current raw checksum against the previous raw checksum from state
+				} else if (previousRawChecksum !== currentFile.rawFileChecksum) {
+					// Non-declarative file content changed (based on raw checksum)
+					debug(`✅ MODIFIED FILE DETECTED: ${filePath} (Non-declarative raw content changed)`, 'verbose');
+					debug(`  Previous raw checksum: ${previousRawChecksum ? previousRawChecksum.substring(0, 8) + '...' : 'N/A'}`, 'verbose');
+					debug(`  Current raw checksum  : ${currentFile.rawFileChecksum ? currentFile.rawFileChecksum.substring(0, 8) + '...' : 'N/A'}`, 'verbose');
 					changeDetected = true;
-					// We don't have the previous ProcessedSqlFile structure here easily,
-					// just the checksum. Mark as modified based on checksum diff.
-					// previousStateForChange could potentially hold { checksum: previousRawChecksum } if needed.
+
+					// --- ADDED: Handle statement diffing if splitStatements is true --- 
+					if (currentFile.splitStatements) {
+						debug(`    splitStatements is true, attempting statement diff...`, 'verbose');
+						const previousStatements = sqlSyncState.currentSplitStatementFiles?.[filePath];
+						if (previousStatements) {
+							debug(`    Found ${previousStatements.length} previous statements in state.`, 'verbose');
+							statementChanges = diffStatements(previousStatements, currentFile.statements);
+							debug(`    Detected ${statementChanges.length} statement changes.`, 'verbose');
+						} else {
+							// If no previous statements found (e.g., first run with splitStatements), treat all current as added
+							debug(`    No previous statements found in state for ${filePath}. Treating all current statements as added.`, 'verbose');
+							statementChanges = currentFile.statements.map(stmt => ({ type: 'added', current: stmt }));
+						}
+					} else {
+						debug(`    splitStatements is false, skipping statement diff.`, 'verbose');
+					}
+					// --- END ADDED --- 
+
+					// We don't capture the full previous non-declarative state here, just the checksum difference.
+					// previousStateForChange remains undefined for non-declarative -> non-declarative changes.
 				} else {
-					debug(`  Result: UNMODIFIED (non-declarative file unchanged)`, 'verbose');
+					debug(`⏭️ UNCHANGED FILE: ${filePath} (Non-declarative file unchanged)`, 'verbose');
 				}
 			}
 
@@ -167,43 +221,51 @@ export function diffStates(
 				fileChanges.push({
 					type: 'modified',
 					filePath,
-					previous: previousStateForChange, // Might be DeclarativeTableState or undefined
+					previous: previousStateForChange,
 					current: currentFile,
-					// Statement changes only relevant if non-declarative and we implement richer diff later
-					// statementChanges: currentFile.declarativeTable ? undefined : diffStatements(...)
+					// Include statement changes if they were calculated
+					statementChanges: statementChanges,
 				});
 			}
 		}
-		// Remove from the set of known previous paths to find deletions
-		previousFilePaths.delete(filePath);
 	}
 
 	// --- Identify Deleted Files ---
-	// Find files that existed in the previous state but not in the current state
-	previousFilePaths.forEach((filePath) => {
-		if (!currentFilesMap.has(filePath)) {
-			debug(`File deleted: ${filePath}`, 'basic');
+	// Any files remaining in previousFilePaths were not found in the current run
+	for (const filePath of previousFilePaths) {
+		if (!currentFiles.has(filePath)) {
+			debug(`➖ DELETED FILE DETECTED: ${filePath} (In previous state but not current)`, 'verbose');
 			
 			// Deleted file - need to capture what we know from the previous state
+			// ** CORRECTED **: Read directly from SqlSyncState fields
 			const isDeclarative = !!sqlSyncState.currentDeclarativeTables[filePath];
 			const previousState = isDeclarative
 				? sqlSyncState.currentDeclarativeTables[filePath]
 				: undefined;
-			// We don't have much info about non-declarative files in previous state currently
-			
+
 			fileChanges.push({
 				type: 'deleted',
 				filePath,
 				previous: previousState,
 			});
 		}
-	});
+	}
 	
-	debug(`diffStates identified ${fileChanges.length} changed files`, 'basic');
-	debug(`  Added: ${fileChanges.filter(fc => fc.type === 'added').length}`, 'verbose');
-	debug(`  Modified: ${fileChanges.filter(fc => fc.type === 'modified').length}`, 'verbose');
-	debug(`  Deleted: ${fileChanges.filter(fc => fc.type === 'deleted').length}`, 'verbose');
-
+	debug(`\nFile changes summary:`, 'verbose');
+	debug(`  - Total changes: ${fileChanges.length}`, 'verbose');
+	debug(`  - Added: ${fileChanges.filter(fc => fc.type === 'added').length}`, 'verbose');
+	debug(`  - Modified: ${fileChanges.filter(fc => fc.type === 'modified').length}`, 'verbose');
+	debug(`  - Deleted: ${fileChanges.filter(fc => fc.type === 'deleted').length}`, 'verbose');
+	
+	if (fileChanges.filter(fc => fc.type === 'modified').length > 0) {
+		debug(`Modified files list:`, 'verbose');
+		fileChanges.filter(fc => fc.type === 'modified').forEach((change, idx) => {
+			debug(`  ${idx + 1}. ${change.filePath}`, 'verbose');
+		});
+	}
+	
+	debug("\n===== STATE COMPARISON COMPLETE =====\n", 'verbose');
+	
 	return { fileChanges };
 }
 
@@ -241,38 +303,22 @@ function diffStatements(
 	currentStatements: ProcessedStatement[]
 ): StatementChange[] {
 	const changes: StatementChange[] = [];
-	const previousStmtMap = new Map<string, ProcessedStatement>();
-	const currentStmtMap = new Map<string, ProcessedStatement>();
+	const previousMap = new Map(previousStatements.map(s => [s.checksum, s]));
+	const currentMap = new Map(currentStatements.map(s => [s.checksum, s]));
 
-	previousStatements.forEach((stmt) =>
-		previousStmtMap.set(stmt.checksum, stmt)
-	);
-	currentStatements.forEach((stmt) => currentStmtMap.set(stmt.checksum, stmt));
-
-	// Find modified and deleted statements
-	for (const [checksum, previousStmt] of previousStmtMap.entries()) {
-		if (!currentStmtMap.has(checksum)) {
-			// Statement with this checksum is not in current state -> deleted or modified
-			// For simplicity now, we mark as deleted. More complex diff could try to match based on sequence.
-			changes.push({ type: 'deleted', previous: previousStmt });
-		} else {
-			// Statement exists in both -> unmodified
-			changes.push({
-				type: 'unmodified',
-				previous: previousStmt,
-				current: currentStmtMap.get(checksum)!,
-			});
-			// Remove from current map to find added statements later
-			currentStmtMap.delete(checksum);
+	// Find deleted statements (in previous but not current)
+	for (const [checksum, statement] of previousMap) {
+		if (!currentMap.has(checksum)) {
+			changes.push({ type: 'deleted', previous: statement });
 		}
 	}
 
-	// Find added statements
-	// Any statements remaining in currentStmtMap are new
-	for (const [checksum, currentStmt] of currentStmtMap.entries()) {
-		changes.push({ type: 'added', current: currentStmt });
+	// Find added statements (in current but not previous)
+	for (const [checksum, statement] of currentMap) {
+		if (!previousMap.has(checksum)) {
+			changes.push({ type: 'added', current: statement });
+		}
 	}
 
-	// TODO: Consider statement order changes? For now, checksum matching is primary.
 	return changes;
 }

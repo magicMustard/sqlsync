@@ -1,5 +1,5 @@
--- SQLSync Migration: init
--- Generated At: 2025-04-04T00:33:23.449Z
+-- SQLSync Migration: test_init
+-- Generated At: 2025-04-12T02:02:46.290Z
 -- Based on detected changes between states.
 
 -- >>> ADDED FILES <<<
@@ -25,7 +25,7 @@ GRANT jackson TO authenticated;
 -- sqlsync: endStatement:8eddee9d87b1cf8bdbf3ecf156fd2410b4d16e3d1296e132de8a72f8d3cc9c5d
 
 -- Added File: schema/functions/uuid_v7.sql
--- sqlsync: startStatement:8796d4e0a21e94723ae6902283676e2274ac8b8ed306475ac64f295f8297f550
+-- sqlsync: startStatement:7c14d3a8c193197e846bef78c2583516e1237ad21ac3e90b6cb7c6c06666d5a9
 CREATE OR REPLACE FUNCTION functions.uuid_v7() RETURNS uuid AS $$
 DECLARE
 BEGIN
@@ -47,7 +47,7 @@ DECLARE
 
 	c_milli double precision := 10^3;  -- 1 000
 	c_micro double precision := 10^6;  -- 1 000 000
-	c_scale double precision := 4.096; -- 4.0 * (1024 / 1000)
+	c_scale double precision := 4.1; -- 4.0 * (1024 / 1000)
 	
 	c_version bigint := x'0000000000007000'::bigint; -- RFC-9562 version: b'0111...'
 	c_variant bigint := x'8000000000000000'::bigint; -- RFC-9562 variant: b'10xx...'
@@ -62,24 +62,46 @@ BEGIN
 	v_rand_a_hex := lpad(to_hex((v_rand_a | c_version)::bigint), 4, '0');
 	v_rand_b_hex := lpad(to_hex((v_rand_b | c_variant)::bigint), 16, '0');
 
+    -- Generate the random bytes
+    -- Another test comment to trigger change detection
+
 	RETURN (v_unix_t_hex || v_rand_a_hex || v_rand_b_hex)::uuid;
 END $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
--- sqlsync: endStatement:8796d4e0a21e94723ae6902283676e2274ac8b8ed306475ac64f295f8297f550
+
+-- Test modification for standard file diff;
+-- sqlsync: endStatement:7c14d3a8c193197e846bef78c2583516e1237ad21ac3e90b6cb7c6c06666d5a9
 
 -- Added File: schema/functions/update_updated_at_column.sql
--- sqlsync: startStatement:7d2123f8548413b979f3219d345c712cddc263196c0321b92b7218978f00ff6d
+-- sqlsync: startStatement:f43b798ba684996ee4e7a914194c195e572b056dfd42d492b32c2f7d460bf276
 -- Create a trigger function to update the `updated_at` timestamp
 -- Function: update_updated_at_column()
 -- This function automatically updates the 'updated_at' column to the current timestamp
 -- Whenever a row is updated in a table with this trigger
+-- ensure this function is included in the migration
+-- updated: 2025-04-12 11:43 AM
 CREATE OR REPLACE FUNCTION functions.update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-	NEW.updated_at = now(); 
-	RETURN NEW;
+    NEW.updated_at = now(); 
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
--- sqlsync: endStatement:7d2123f8548413b979f3219d345c712cddc263196c0321b92b7218978f00ff6d
+
+-- Test comment update: 2025-04-12T11:55:00+10:00;
+-- sqlsync: endStatement:f43b798ba684996ee4e7a914194c195e572b056dfd42d492b32c2f7d460bf276
+
+-- Added File: schema/functions/new_test_function.sql
+-- sqlsync: startStatement:455bc5f20691cf03369a112d701bb723a3fa18b40a84cfcdccfe0339e12d5256
+-- Create a new test function
+-- This will test adding a new file
+
+CREATE OR REPLACE FUNCTION functions.new_test_function()
+RETURNS TEXT AS $$
+BEGIN
+    RETURN 'This is a test function for SQLSync';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
+-- sqlsync: endStatement:455bc5f20691cf03369a112d701bb723a3fa18b40a84cfcdccfe0339e12d5256
 
 -- Added File: schema/tables/system_config/table.sql
 -- sqlsync: startStatement:c051436735f0907f6013d188c12f74b0869dc390b542f27b612f454fd84c3bf4
@@ -116,21 +138,26 @@ GRANT
 
 -- Added File: schema/tables/tenants/table.sql
 -- NOTE: File is declarative. Using raw content.
--- sqlsync: startStatement:27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53
+-- sqlsync: startStatement:7c33d910250ce3d7e79211f8c062b776bd14d5e172871d611fd55a263fb5917b
 -- sqlsync: declarativeTable=true
 -- Create tenants table
 CREATE TABLE public.tenants (
     id UUID NOT NULL PRIMARY KEY DEFAULT functions.uuid_v7(),
-    name TEXT DEFAULT NULL,
     phone TEXT DEFAULT NULL,
     email TEXT DEFAULT NULL,
-	setup_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
-    description TEXT DEFAULT NULL, 
+    setup_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    description TEXT DEFAULT NULL,
     active BOOLEAN DEFAULT TRUE NOT NULL, 
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+    deleted_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'active',
+    last_login_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
--- sqlsync: endStatement:27bcbb6b97adee33d3362f69773c7eaffc8d7e6c9c5ca75320f14ea1c10bff53
+
+-- Test comment added to trigger migration.
+
+-- Test comment to trigger change detection;
+-- sqlsync: endStatement:7c33d910250ce3d7e79211f8c062b776bd14d5e172871d611fd55a263fb5917b
 
 -- Added File: schema/tables/tenants/rls.sql
 -- sqlsync: startStatement:4e8f0a412cbe0d859aa67263e44caa79df18d93fe64e5d7bb4e60404a84dfc7e
@@ -211,38 +238,6 @@ CREATE TABLE public.profiles (
 -- sqlsync: startStatement:d0d86f22ca5d9cc0f9a4dc22cd600f4b60ebdcf7bf7dc7d49e266ce4f4cc7953
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 -- sqlsync: endStatement:d0d86f22ca5d9cc0f9a4dc22cd600f4b60ebdcf7bf7dc7d49e266ce4f4cc7953
-
--- Added File: schema/tables/profiles/checks.sql
--- sqlsync: startStatement:1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549
-ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_operating_hours_check;
-
-ALTER TABLE public.profiles
-	ADD CONSTRAINT profiles_operating_hours_check
-	CHECK (
-		extensions.jsonb_matches_schema(
-			'{
-				"$schema": "http://json-schema.org/draft-07/schema#",
-				"type": "object",
-				"properties": {
-					"operating_hours": {
-						"type": "array",
-						"minItems": 7,
-						"maxItems": 7,
-						"items": {
-							"type": "array",
-							"items": {
-								"type": "string"
-							}
-						}
-					}
-				},
-				"required": ["operating_hours"],
-				"additionalProperties": false
-			}',
-			operating_hours
-		)
-	);
--- sqlsync: endStatement:1247de33efb37dbb42508bf2bffdbfa2f156764a00c9bae51a5cb99062e01549
 
 -- Added File: schema/tables/profiles/grants.sql
 -- sqlsync: startStatement:86c2c4133545000e5641178ab1d2f721041aa3c572b08985b901ee93589ec88b

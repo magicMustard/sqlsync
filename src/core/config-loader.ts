@@ -15,6 +15,7 @@ const DEFAULT_CONFIG_FILENAME = 'sqlsync.yaml';
 export function loadConfig(
 	configPath: string = path.join(process.cwd(), DEFAULT_CONFIG_FILENAME)
 ): SqlSyncConfig {
+	console.log(`[DEBUG config-loader.ts] loadConfig received raw configPath: ${configPath}`);
 	const absoluteConfigPath = path.resolve(configPath);
 	console.log(`Loading config from: ${absoluteConfigPath}`);
 	if (!fs.existsSync(absoluteConfigPath)) {

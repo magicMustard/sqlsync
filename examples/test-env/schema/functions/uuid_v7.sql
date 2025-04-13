@@ -19,7 +19,7 @@ DECLARE
 
 	c_milli double precision := 10^3;  -- 1 000
 	c_micro double precision := 10^6;  -- 1 000 000
-	c_scale double precision := 4.096; -- 4.0 * (1024 / 1000)
+	c_scale double precision := 4.1; -- 4.0 * (1024 / 1000)
 	
 	c_version bigint := x'0000000000007000'::bigint; -- RFC-9562 version: b'0111...'
 	c_variant bigint := x'8000000000000000'::bigint; -- RFC-9562 variant: b'10xx...'
@@ -34,5 +34,10 @@ BEGIN
 	v_rand_a_hex := lpad(to_hex((v_rand_a | c_version)::bigint), 4, '0');
 	v_rand_b_hex := lpad(to_hex((v_rand_b | c_variant)::bigint), 16, '0');
 
+    -- Generate the random bytes
+    -- Another test comment to trigger change detection
+
 	RETURN (v_unix_t_hex || v_rand_a_hex || v_rand_b_hex)::uuid;
 END $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
+
+-- Test modification for standard file diff

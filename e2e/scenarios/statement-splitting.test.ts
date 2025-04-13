@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { setupTestEnvironment, setupSqlSyncEnvironment } from '../helpers/setup';
 import { createTestDirectory, modifySchema } from '../helpers/file-utils';
-import { runCommand } from '../helpers/commands';
+import { runCommand, initializeSqlSync, getGeneratedMigrationFilename } from '../helpers/commands';
 
 // Single combined test to make testing more efficient and reliable
 describe('Statement Splitting Functionality', () => {
@@ -89,7 +89,25 @@ describe('Statement Splitting Functionality', () => {
     console.log('Update function stdout:', updateResult.stdout);
     console.log('Update function stderr:', updateResult.stderr);
     console.log('Update function exit code:', updateResult.exitCode);
-    
+
+    // Verify migration content for modified non-declarative file
+    expect(updateResult.exitCode).toBe(0);
+    const updateMigrationFilename = getGeneratedMigrationFilename(updateResult.stdout);
+    expect(updateMigrationFilename).toBeTruthy();
+    const updateMigrationContent = await fs.readFile(
+      path.join(testDir, 'migrations', updateMigrationFilename!),
+      'utf8'
+    );
+    console.log(`Update migration content for ${updateMigrationFilename}:
+${updateMigrationContent}`);
+    // Expect the entire updated file content
+    expect(updateMigrationContent).toContain('Modified File: schema/functions/user_functions.sql');
+    expect(updateMigrationContent).toContain('NOTE: File content has changed. Including complete content:');
+    expect(updateMigrationContent).toContain('-- sqlsync: splitStatements=true');
+    expect(updateMigrationContent).toContain('RETURNS TABLE (id INTEGER, name TEXT, email TEXT)'); // Check for modification
+    expect(updateMigrationContent).toContain('SELECT id, name, email FROM users'); // Check for modification
+    expect(updateMigrationContent).toContain('CREATE FUNCTION count_users()'); // Unchanged function should still be present
+
     // Apply the migration if possible
     if (updateResult.exitCode === 0) {
       await runCommand(['mark-applied', 'all'], { cwd: testDir });
@@ -142,6 +160,50 @@ describe('Statement Splitting Functionality', () => {
     console.log('Remove function stderr:', removeResult.stderr);
     console.log('Remove function exit code:', removeResult.exitCode);
     
+    // Apply the migration if possible
+    if (removeResult.exitCode === 0) {
+      await runCommand(['mark-applied', 'all'], { cwd: testDir });
+    }
+
+    // 5. Add a new non-declarative file
+    console.log('Adding new_utils.sql file...');
+    const newUtilContent = `-- Some utility functions
+CREATE FUNCTION util_one() RETURNS TEXT AS $$
+  SELECT 'utility one';
+$$ LANGUAGE SQL;`;
+    await fs.writeFile(
+      path.join(testDir, 'schema/functions/new_utils.sql'),
+      newUtilContent
+    );
+
+    // Generate migration for the new file
+    const newFileResult = await runCommand(['generate', 'add_new_utils'], { cwd: testDir });
+
+    // Log all output
+    console.log('Add new file stdout:', newFileResult.stdout);
+    console.log('Add new file stderr:', newFileResult.stderr);
+    console.log('Add new file exit code:', newFileResult.exitCode);
+
+    // Verify migration content for the new non-declarative file
+    expect(newFileResult.exitCode).toBe(0);
+    const newFileMigrationFilename = getGeneratedMigrationFilename(newFileResult.stdout);
+    expect(newFileMigrationFilename).toBeTruthy();
+    const newFileMigrationContent = await fs.readFile(
+      path.join(testDir, 'migrations', newFileMigrationFilename!),
+      'utf8'
+    );
+    console.log(`New file migration content for ${newFileMigrationFilename}:
+${newFileMigrationContent}`);
+    // Expect the entire new file content
+    expect(newFileMigrationContent).toContain('Added File: schema/functions/new_utils.sql');
+    expect(newFileMigrationContent).toContain('NOTE: File content has changed. Including complete content:');
+    expect(newFileMigrationContent).toContain(newUtilContent);
+
+    // Apply the migration if possible
+    if (newFileResult.exitCode === 0) {
+      await runCommand(['mark-applied', 'all'], { cwd: testDir });
+    }
+
     // Final state check - always check this regardless of command success/failure
     const finalStateContent = await fs.readFile(
       path.join(testDir, 'sqlsync-state.json'),
