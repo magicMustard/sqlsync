@@ -1,10 +1,11 @@
 // src/utils/logger.ts
 import chalk from 'chalk';
+import { Notice } from './types';
 
 // Enhanced console logger implementation with colors
 // Could be replaced with a more sophisticated library like Winston or Pino later.
 
-const log = (level: string, message: string, ...args: any[]) => {
+const log = (level: Notice, message: string, ...args: any[]) => {
 	// Only display timestamp in debug mode to make normal logs cleaner
 	const timestamp = process.env.DEBUG ? `[${new Date().toISOString()}] ` : '';
 

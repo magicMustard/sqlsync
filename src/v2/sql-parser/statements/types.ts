@@ -9,3 +9,7 @@ export interface SplitStatementDifferences extends Differences {
 	type: 'SplitStatements';
 	differentStatements: string[];
 }
+
+export interface SplitStatementChecksums {
+	[checksum: string]: string;
+}

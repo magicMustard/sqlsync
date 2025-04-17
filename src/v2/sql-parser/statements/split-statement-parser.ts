@@ -1,5 +1,5 @@
 import { SqlContent, SqlContentParser, SqlCommentFlags } from '../types';
-import { SplitStatementParsedContent } from './types';
+import { SplitStatementChecksums, SplitStatementParsedContent } from './types';
 import { stripWhitespace } from '../funcs';
 import { getHash } from '../../utils/crypto';
 
@@ -8,9 +8,7 @@ export class SplitStatementParser implements SqlContentParser {
 	 * Stores the statements from the start and end statement declarations
 	 * as per comment flags
 	 */
-	private readonly statements: {
-		[checksum: string]: string;
-	} = {};
+	public readonly statements: SplitStatementChecksums = {};
 
 	constructor(public readonly sqlContent: SqlContent) {
 		this.extractStatements();

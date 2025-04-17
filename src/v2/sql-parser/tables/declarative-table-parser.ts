@@ -1,12 +1,12 @@
 import { TableDefinition, ColumnDefinition } from './types';
-import { SqlContent, SqlContentParser } from '../types';
+import { SqlContent, SqlContentParser, SqlTokenContext } from '../types';
 import { DeclarativeTableParsedContent } from './types';
 import { ColumnDefinitionFactory } from './column-definition-factory'; // Assuming the Column class is in a separate file
 
 export class DeclarativeTableParser implements SqlContentParser {
 	private tableDefinition: TableDefinition | null = null;
 
-	constructor(public readonly sqlContent: SqlContent) {
+	constructor(public readonly sqlToken: SqlTokenContext) {
 		this.extractTableDefinition();
 	}
 
@@ -22,7 +22,7 @@ export class DeclarativeTableParser implements SqlContentParser {
 
 	private extractTableDefinition(): void {
 		// Normalize SQL for consistent parsing
-		const normalizedSql = this.normalizeSql(this.sqlContent);
+		const normalizedSql = this.sqlToken.stripped;
 
 		// Check if it's a CREATE TABLE statement
 		if (!normalizedSql.match(/^CREATE\s+TABLE\s+/i)) {
@@ -59,10 +59,6 @@ export class DeclarativeTableParser implements SqlContentParser {
 			tableName: tableInfo.tableName,
 			columns,
 		};
-	}
-
-	private normalizeSql(sql: string): string {
-		return sql.replace(/\s+/g, ' ').trim();
 	}
 
 	private extractTableInfo(

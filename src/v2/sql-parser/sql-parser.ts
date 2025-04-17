@@ -6,53 +6,66 @@ import {
 	SqlCommentFlags,
 	SqlContentParser,
 	SqlContent,
+	ParserType,
+	Differences,
+	SqlStatementFactory,
+	SqlTokenContext,
 } from './types';
-import { normalizeSqlSyncComments, stripComments } from './funcs';
+import { normalizeSqlSyncComments, stripComments, stripWhitespace } from './funcs';
+import { DeclarativeTableStatementFactory } from './tables/declarative-table-statement-factory';
+import { SplitStatementFactory } from './statements/splite-statement-factory';
+import { FileContentFactory } from './files/file-content-factory';
+import { getHash } from '@/utils/crypto';
 
 export class SqlFileParser {
-	private readonly _cleanSqlContent: SqlContent;
-	private readonly _sqlFileType: SqlFileType;
-	private readonly _sqlContentParser: SqlContentParser;
+	private readonly sqlToken: SqlTokenContext;
+	private readonly sqlContentParser: SqlContentParser;
+	private readonly sqlStatementFactory: SqlStatementFactory;
 
-	constructor(private readonly originalSqlContent: SqlContent) {
-		this._cleanSqlContent = normalizeSqlSyncComments(this.originalSqlContent);
-		this._cleanSqlContent = stripComments(this._cleanSqlContent);
+	constructor(
+		private readonly originalSqlContent: SqlContent,
+		private readonly filePath: string
+	) {
+		const cleanSqlContent = stripComments(normalizeSqlSyncComments(this.originalSqlContent));
+		const strippedSqlContent = stripWhitespace(cleanSqlContent);
 
-		// let's get the file type
-		this._sqlFileType = this.getFileType();
+		this.sqlToken = {
+			original: originalSqlContent,
+			filePath: filePath,
+			fileType: this.getFileType(strippedSqlContent),
+			clean: cleanSqlContent,
+			stripped: strippedSqlContent,
+			checksum: getHash(strippedSqlContent),
+		};
 
-		switch (this._sqlFileType) {
+		switch (this.sqlToken.fileType) {
 			case 'DeclarativeTable':
-				this._sqlContentParser = new DeclarativeTableParser(
-					this._cleanSqlContent
-				);
+				this.sqlContentParser = new DeclarativeTableParser(this.sqlToken);
+				this.sqlStatementFactory = new DeclarativeTableStatementFactory();
+				break;
 			case 'SplitStatements':
-				this._sqlContentParser = new SplitStatementParser(
-					this._cleanSqlContent
-				);
-			case 'FileContent':
-				this._sqlContentParser = new FileContentParser(this._cleanSqlContent);
+				const ssp = new SplitStatementParser(this.originalSqlContent);
+				this.sqlContentParser = ssp;
+				this.sqlStatementFactory = new SplitStatementFactory(ssp.statements);
+				break;
+			default: //('FileContent')
+				const fcp = new FileContentParser(this.originalSqlContent);
+				this.sqlContentParser = fcp;
+				this.sqlStatementFactory = new FileContentFactory(fcp.sqlContent, fcp.checksum);
+				break;
 		}
 	}
 
-	get cleanSqlContent(): SqlContent {
-		return this._cleanSqlContent;
+	public processSqlContent(): ParserType {
+		return this.sqlContentParser.process();
 	}
 
-	get sqlFileType(): SqlFileType {
-		return this._sqlFileType;
+	public generateSqlStatements(differences: Differences): SqlTokenContext[] {
+		return this.sqlStatementFactory.create(differences);
 	}
 
-	get sqlContentParser(): SqlContentParser {
-		return this._sqlContentParser;
-	}
-
-	public processSqlContent(): void {
-		this._sqlContentParser.process();
-	}
-
-	private getFileType(): SqlFileType {
-		const lines = this._cleanSqlContent.split('\n');
+	private getFileType(content: SqlContent): SqlFileType {
+		const lines = content.split('\n');
 		let fileType: SqlFileType = 'FileContent';
 		let foundFlag = false;
 
@@ -84,10 +97,10 @@ export class SqlFileParser {
 						fileType = 'DeclarativeTable';
 					} else if (flagType === 'splitStatements') {
 						// Check for at least one startStatement or endStatement marker
-						const hasStart = this._cleanSqlContent.includes(
+						const hasStart = content.includes(
 							`${SqlCommentFlags.declarer}: startStatement`
 						);
-						const hasEnd = this._cleanSqlContent.includes(
+						const hasEnd = content.includes(
 							`${SqlCommentFlags.declarer}: endStatement`
 						);
 						if (!hasStart && !hasEnd) {

@@ -1,4 +1,5 @@
-import { SqlCommentFlags, SqlContent } from './types';
+import { getHash } from '@/utils/crypto';
+import { SqlCommentFlags, SqlContent, SqlTokenContext, SqlFileType } from './types';
 
 /**
  * Normalizes sqlsync-specific comments by removing extra spaces to ensure consistent processing.
@@ -63,4 +64,19 @@ export function stripComments(content: SqlContent): SqlContent {
  */
 export function stripWhitespace(content: SqlContent): SqlContent {
 	return content.replace(/\s+/g, '');
+}
+
+export function createSqlToken(filePath: string, fileType: SqlFileType, original: SqlContent): SqlTokenContext {
+	const clean = normalizeSqlSyncComments(original);
+	const stripped = stripComments(clean);
+	const checksum = getHash(stripWhitespace(stripped));
+
+	return {
+		filePath,
+		fileType,
+		original,
+		clean,
+		stripped,
+		checksum
+	}
 }
